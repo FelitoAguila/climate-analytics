@@ -3,9 +3,22 @@ import numpy as np
 import pandas as pd
 import pytest
 from analysis.plots import plot_annual_means
-from analysis.stats import annual_stats, city_summary, complete_years, trend_per_decade
+from analysis.stats import (
+    annual_stats,
+    city_summary,
+    complete_years,
+    read_database,
+    trend_per_decade,
+)
 
 matplotlib.use("Agg")  # no window in the tests
+
+
+def test_missing_database_says_what_to_do(tmp_path):
+    with pytest.raises(FileNotFoundError, match="03_download"):
+        read_database(tmp_path / "climate.db")
+    # SQLite would otherwise create an empty file in read-write mode; nothing is created
+    assert not (tmp_path / "climate.db").exists()
 
 
 def synthetic_daily(first_year=1940, last_year=2025, warming_per_year=0.01):

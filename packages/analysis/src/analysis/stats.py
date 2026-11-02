@@ -25,6 +25,12 @@ def read_database(db_path: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
     Returns `cities` (indexed by id, in download order) and `daily` with the columns
     city_id, date, t_mean, t_max, t_min and year.
     """
+    if not Path(db_path).exists():
+        raise FileNotFoundError(
+            f"{db_path} does not exist. Run notebooks/03_download.ipynb first: it imports "
+            "a shared copy of the data if you have one, or downloads it from the API "
+            "(see the README)."
+        )
     connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     try:
         cities = pd.read_sql(
