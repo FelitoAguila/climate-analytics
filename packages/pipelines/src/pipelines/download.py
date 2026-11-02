@@ -551,3 +551,92 @@ def import_clima_mundial(connection, source: Path) -> int:
     finally:
         connection.execute("DETACH DATABASE source")
     return len(to_import)
+
+
+# Shared copy of the data: one compact Parquet file instead of the ~250 MB database
+SHARED_COLUMNS = ["city_id", "date", *DAILY_VARIABLES.values()]
+SHARED_CELL_COLUMNS = ["era5_lat", "era5_lon", "era5_elevation"]
+
+
+def export_parquet(connection, path: Path) -> int:
+    """Writes every complete city to a Parquet file, to share the data without the API.
+
+    Each row is one day of one city, with the ERA5 cell of the city (repeated values cost
+    almost nothing once compressed): about 23 MB for 140 cities. Returns how many cities.
+    """
+    data = pd.read_sql(
+        """SELECT d.city_id, d.date, d.t_mean, d.t_max, d.t_min,
+                  c.era5_lat, c.era5_lon, c.era5_elevation
+           FROM daily d
+           JOIN downloads x ON x.city_id = d.city_id
+           JOIN cities c ON c.id = d.city_id
+           WHERE x.status = 'complete'
+           ORDER BY d.city_id, d.date""",
+        connection,
+    )
+    data["city_id"] = data["city_id"].astype("category")
+    data["date"] = pd.to_datetime(data["date"])
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    data.to_parquet(path, index=False, compression="zstd")
+    return data["city_id"].nunique()
+
+
+def import_parquet(connection, path: Path) -> int:
+    """Imports the cities of a file written by `export_parquet`.
+
+    Only cities that are in `cities` and not complete yet are imported, each one validated
+    like a download (every day of its period, no empty values, t_min ≤ t_mean ≤ t_max) and
+    saved in one transaction. Running it again does nothing. Returns how many were imported.
+    """
+    data = pd.read_parquet(path)
+    known = {row[0] for row in connection.execute("SELECT id FROM cities")}
+    complete = {
+        row[0]
+        for row in connection.execute(
+            "SELECT city_id FROM downloads WHERE status = 'complete'"
+        )
+    }
+    imported = 0
+    for city_id, rows in data.groupby("city_id", observed=True):
+        if city_id not in known or city_id in complete:
+            continue
+        rows = rows.sort_values("date")
+        dates = rows["date"].dt.strftime("%Y-%m-%d").tolist()
+        values = rows[list(DAILY_VARIABLES.values())]
+        if values.isna().any().any():
+            raise ValueError(f"{city_id}: empty values in {path}")
+        payload = {
+            "daily": {
+                "time": dates,
+                **{
+                    api: values[column].tolist()
+                    for api, column in DAILY_VARIABLES.items()
+                },
+            }
+        }
+        problems = validate(payload, dates[0], dates[-1])
+        if problems:
+            raise ValueError(f"{city_id}: {'; '.join(problems)}")
+
+        cell = rows[SHARED_CELL_COLUMNS].iloc[0].tolist()
+        with connection:  # all or nothing
+            connection.execute("DELETE FROM daily WHERE city_id = ?", (city_id,))
+            connection.executemany(
+                "INSERT INTO daily (city_id, date, t_mean, t_max, t_min) "
+                "VALUES (?, ?, ?, ?, ?)",
+                zip(repeat(city_id), dates, *(values[c].tolist() for c in values)),
+            )
+            connection.execute(
+                "UPDATE cities SET era5_lat = ?, era5_lon = ?, era5_elevation = ? "
+                "WHERE id = ?",
+                (*cell, city_id),
+            )
+            connection.execute(
+                """UPDATE downloads
+                   SET status = 'complete', last_error = NULL, start_date = ?,
+                       end_date = ?, n_days = ?, downloaded_at = ?
+                   WHERE city_id = ?""",
+                (dates[0], dates[-1], len(dates), utc_now(), city_id),
+            )
+        imported += 1
+    return imported

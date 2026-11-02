@@ -7,8 +7,10 @@ from pipelines.download import (
     DailyLimitReached,
     DownloadConfig,
     DownloadError,
+    export_parquet,
     fetch_with_retries,
     import_clima_mundial,
+    import_parquet,
     load_cities,
     open_db,
     run_batch,
@@ -206,3 +208,36 @@ def test_import_clima_mundial(db, tmp_path):
         "SELECT era5_elevation FROM cities WHERE id = 'city-0'"
     ).fetchone() == (600.0,)
     assert import_clima_mundial(db, source) == 0  # already complete: nothing to do
+
+
+def test_parquet_round_trip(db, tmp_path):
+    api = FakeApi()
+    run_batch(db, START, END, CONFIG, log=lambda m: None, get=api)
+    shared = tmp_path / "shared.parquet"
+    assert export_parquet(db, shared) == 2
+
+    other = open_db(tmp_path / "other.db")
+    load_cities(other, cities())
+    assert import_parquet(other, shared) == 2
+    query = "SELECT * FROM daily ORDER BY city_id, date"
+    assert other.execute(query).fetchall() == db.execute(query).fetchall()
+    assert other.execute(
+        "SELECT era5_lat, era5_lon, era5_elevation FROM cities WHERE id = 'city-0'"
+    ).fetchone() == (40.5, -3.75, 666.0)
+    assert other.execute(
+        "SELECT status, n_days FROM downloads WHERE city_id = 'city-1'"
+    ).fetchone() == ("complete", 3)
+    assert import_parquet(other, shared) == 0  # already complete: nothing to do
+
+
+def test_parquet_with_a_missing_day_is_rejected(db, tmp_path):
+    run_batch(db, START, END, CONFIG, log=lambda m: None, get=FakeApi())
+    shared = tmp_path / "shared.parquet"
+    export_parquet(db, shared)
+    data = pd.read_parquet(shared)
+    data.drop(index=1).to_parquet(shared)  # city-0 loses 2024-01-02
+
+    other = open_db(tmp_path / "other.db")
+    load_cities(other, cities())
+    with pytest.raises(ValueError, match="city-0: dates"):
+        import_parquet(other, shared)
