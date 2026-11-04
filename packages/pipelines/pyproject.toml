@@ -7,7 +7,12 @@ authors = [
     { name = "Felix Manuel Aguila Alonso", email = "feloaguila@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "numpy>=2.5.4",
+    "pandas>=3.1.0",
+    "pyarrow>=26.0.0",
+    "requests>=2.34.2",
+]
 
 [project.scripts]
 pipelines = "pipelines:main"

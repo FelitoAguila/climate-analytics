@@ -1,0 +1,141 @@
+id,name,country,country_code,continent,latitude,longitude,cell_lat,cell_lon,population,is_capital,latitude_band,coast_distance_km,coastal,priority,order
+phoenix-us,Phoenix,United States of America,US,North America,33.5419,-112.0719,33.5,-112.0,3551000,0,subtropical_north,271,0,1,1
+antananarivo-mg,Antananarivo,Madagascar,MG,Africa,-18.9147,47.5147,-19.0,47.5,1697000,1,tropical_south,162,0,1,2
+auckland-nz,Auckland,New Zealand,NZ,Oceania,-36.8481,174.763,-36.75,174.75,1377200,0,temperate_south,0,1,1,3
+jinxi-cn,Jinxi,China,CN,Asia,40.7523,120.828,40.75,120.75,2426000,0,temperate_north,11,1,1,4
+montevideo-uy,Montevideo,Uruguay,UY,South America,-34.8561,-56.173,-34.75,-56.25,1513000,1,subtropical_south,6,1,1,5
+lisbon-pt,Lisbon,Portugal,PT,Europe,38.7247,-9.1468,38.75,-9.25,2812000,1,temperate_north,2,1,1,6
+cilacap-id,Cilacap,Indonesia,ID,Asia,-7.7188,109.0154,-7.75,109.0,1174964,0,tropical_south,2,1,1,7
+isfahan-ir,Isfahan,Iran,IR,Asia,32.702,51.6981,32.75,51.75,1628000,0,subtropical_north,318,0,1,8
+caracas-ve,Caracas,Venezuela,VE,South America,10.5029,-66.919,10.5,-67.0,2985000,1,tropical_north,12,1,1,9
+yaounde-cm,Yaoundé,Cameroon,CM,Africa,3.8686,11.5147,3.75,11.5,1611000,1,tropical_north,191,0,1,10
+natal-br,Natal,Brazil,BR,South America,-5.7781,-35.242,-5.75,-35.25,1088000,0,tropical_south,7,1,1,11
+madurai-in,Madurai,India,IN,Asia,9.922,78.1181,10.0,78.0,1294000,0,tropical_north,97,0,1,12
+boston-us,Boston,United States of America,US,North America,42.3319,-71.072,42.25,-71.0,4467000,0,temperate_north,2,1,1,13
+st-petersburg-ru,St.  Petersburg,Russia,RU,Europe,59.941,30.3141,60.0,30.25,4553000,0,temperate_north,8,1,1,14
+cape-town-za,Cape Town,South Africa,ZA,Africa,-33.9181,18.433,-34.0,18.5,3215000,1,subtropical_south,1,1,1,15
+adelaide-au,Adelaide,Australia,AU,Oceania,-34.933,138.5981,-35.0,138.5,1145000,0,subtropical_south,9,1,1,16
+novosibirsk-ru,Novosibirsk,Russia,RU,Europe,55.0319,82.9581,55.0,83.0,1389000,0,temperate_north,1377,0,1,17
+addis-ababa-et,Addis Ababa,Ethiopia,ET,Africa,9.0353,38.6981,9.0,38.75,3100000,1,tropical_north,502,0,1,18
+conakry-gn,Conakry,Guinea,GN,Africa,9.5335,-13.6822,9.5,-13.75,1494000,1,tropical_north,0,1,1,19
+quezon-city-ph,Quezon City,Philippines,PH,Asia,14.6504,121.03,14.75,121.0,2761720,0,tropical_north,10,1,1,20
+lima-pe,Lima,Peru,PE,South America,-12.0461,-77.052,-12.0,-77.0,8012000,1,tropical_south,7,1,1,21
+banghazi-ly,Banghazi,Libya,LY,Africa,32.1187,20.0648,32.0,20.0,1180000,0,subtropical_north,2,1,1,22
+guatemala-gt,Guatemala City,Guatemala,GT,North America,14.6231,-90.5289,14.5,-90.5,1024000,1,tropical_north,78,0,1,23
+baoshan-cn,Baoshan,China,CN,Asia,25.12,99.15,25.0,99.25,1000000,0,subtropical_north,803,0,1,24
+lubumbashi-cd,Lubumbashi,Dem. Rep. Congo,CD,Africa,-11.6781,27.4781,-11.75,27.5,1352000,0,tropical_south,1176,0,1,25
+ludhiana-in,Ludhiana,India,IN,Asia,30.9297,75.8703,31.0,75.75,1649000,0,subtropical_north,1014,0,1,26
+edmonton-ca,Edmonton,Canada,CA,North America,53.552,-113.5019,53.5,-113.5,1058000,0,temperate_north,794,0,1,27
+perth-au,Perth,Australia,AU,Oceania,-31.9531,115.8381,-32.0,115.75,1532000,0,subtropical_south,10,1,1,28
+tokyo-jp,Tokyo,Japan,JP,Asia,35.687,139.7495,35.75,139.75,35676000,1,temperate_north,8,1,2,29
+new-york-us,New York,United States of America,US,North America,40.7519,-73.982,40.75,-74.0,19040000,0,temperate_north,0,1,2,30
+madrid-es,Madrid,Spain,ES,Europe,40.402,-3.6853,40.5,-3.75,5567000,1,temperate_north,303,0,2,31
+canberra-au,Canberra,Australia,AU,Oceania,-35.283,149.129,-35.25,149.25,327700,1,temperate_south,114,0,2,32
+wahiawa-us,Wahiawa,United States of America,US,North America,21.5031,-158.0236,21.5,-158.0,174766,0,tropical_north,15,1,2,33
+papeete-pf,Papeete,Fr. Polynesia,PF,Oceania,-17.5334,-149.5667,-17.5,-149.5,131695,0,tropical_south,2,1,2,34
+tarawa-ki,Tarawa,Kiribati,KI,Oceania,1.3382,173.0176,1.25,173.0,28802,1,tropical_north,0,1,2,35
+lae-pg,Lae,Papua New Guinea,PG,Oceania,-6.733,146.99,-6.75,147.0,131052,0,tropical_south,7,1,2,36
+reykjavik-is,Reykjavík,Iceland,IS,Europe,64.15,-21.95,64.25,-22.0,166212,1,subpolar_north,0,1,2,37
+yakutsk-ru,Yakutsk,Russia,RU,Europe,62.035,129.735,62.0,129.75,235600,0,subpolar_north,737,0,2,38
+apia-ws,Apia,Samoa,WS,Oceania,-13.8415,-171.7386,-13.75,-171.75,61916,1,tropical_south,0,1,2,39
+punta-arenas-cl,Punta Arenas,Chile,CL,South America,-53.165,-70.94,-53.25,-71.0,117430,0,temperate_south,1,1,2,40
+anchorage-us,Anchorage,United States of America,US,North America,61.22,-149.9002,61.25,-150.0,260283,0,subpolar_north,1,1,2,41
+agana-gu,Agana,Guam,GU,Oceania,13.47,144.75,13.5,144.75,122411,0,tropical_north,3,1,2,42
+port-vila-vu,Port Vila,Vanuatu,VU,Oceania,-17.7334,168.3166,-17.75,168.25,44040,1,tropical_south,2,1,2,43
+cuiaba-br,Cuiabá,Brazil,BR,South America,-15.5677,-56.0869,-15.5,-56.0,806000,0,tropical_south,1331,0,2,44
+ambon-id,Ambon,Indonesia,ID,Asia,-3.7167,128.2,-3.75,128.25,355596,0,tropical_south,2,1,2,45
+petropavlovsk-kamchatskiy-ru,Petropavlovsk-Kamchatsky,Russia,RU,Europe,53.062,158.623,53.0,158.5,187282,0,temperate_north,3,1,2,46
+banda-aceh-id,Banda Aceh,Indonesia,ID,Asia,5.55,95.32,5.5,95.25,513698,0,tropical_north,6,1,2,47
+vila-velha-br,Vila Velha,Brazil,BR,South America,3.2167,-51.2167,3.25,-51.25,1209091,0,tropical_north,20,1,2,48
+monroe-us,Monroe,United States of America,US,North America,32.5096,-92.1192,32.5,-92.0,101724,0,subtropical_north,297,0,2,49
+victoria-sc,Victoria,Seychelles,SC,Oceanic islands,-4.6166,55.45,-4.5,55.5,33576,1,tropical_south,4,1,2,50
+aqtobe-kz,Aqtobe,Kazakhstan,KZ,Asia,50.28,57.17,50.25,57.25,262457,0,temperate_north,484,0,2,51
+arak-dz,Arak,Algeria,DZ,Africa,25.28,3.75,25.25,3.75,423251,0,subtropical_north,1133,0,2,52
+salalah-om,Salalah,Oman,OM,Asia,17.0255,54.0852,17.0,54.0,203877,0,tropical_north,2,1,2,53
+dunhuang-cn,Dunhuang,China,CN,Asia,40.1427,94.662,40.25,94.75,140094,0,temperate_north,1879,0,2,54
+sevastapol-ru,Sevastopol,Russia,RU,Europe,44.6,33.465,44.5,33.5,379200,0,temperate_north,0,1,2,55
+vitoria-br,Vitória,Brazil,BR,South America,-20.322,-40.3679,-20.25,-40.25,1704000,0,tropical_south,7,1,2,56
+namibe-ao,Moçâmedes,Angola,AO,Africa,-15.19,12.16,-15.25,12.25,132900,0,tropical_south,7,1,2,57
+nassau-bs,Nassau,Bahamas,BS,North America,25.0834,-77.35,25.0,-77.25,227940,1,subtropical_north,0,1,2,58
+yanbu-al-bahr-sa,Yanbu al Bahr,Saudi Arabia,SA,Asia,24.0943,38.0493,24.0,38.0,267590,0,subtropical_north,1,1,2,59
+palikir-fm,Palikir,Micronesia,FM,Oceania,6.9166,158.15,7.0,158.25,4645,1,tropical_north,2,1,2,60
+maputo-mz,Maputo,Mozambique,MZ,Africa,-25.9533,32.5872,-26.0,32.5,1446000,1,subtropical_south,3,1,2,61
+groningen-nl,Groningen,Netherlands,NL,Europe,53.2204,6.58,53.25,6.5,216688,0,temperate_north,24,1,2,62
+norilsk-ru,Norilsk,Russia,RU,Europe,69.34,88.225,69.25,88.25,165873,0,polar_north,212,0,2,63
+geneina-sd,Geneina,Sudan,SD,Africa,13.45,22.44,13.5,22.5,162981,0,tropical_north,1711,0,2,64
+ulan-ude-ru,Ulan-Ude,Russia,RU,Europe,51.825,107.625,51.75,107.5,360278,0,temperate_north,1594,0,2,65
+copiapo-cl,Copiapó,Chile,CL,South America,-27.36,-70.34,-27.25,-70.25,129280,0,subtropical_south,57,0,2,66
+puerto-vallarta-mx,Puerto Vallarta,Mexico,MX,North America,20.6771,-105.245,20.75,-105.25,187134,0,tropical_north,1,1,2,67
+st-john-s-ca,St. John's,Canada,CA,North America,47.585,-52.681,47.5,-52.75,131469,0,temperate_north,1,1,2,68
+yichun-cn,Yichun,China,CN,Asia,27.8353,114.3981,27.75,114.5,982000,0,subtropical_north,507,0,2,69
+pasto-co,Pasto,Colombia,CO,South America,1.2136,-77.2811,1.25,-77.25,382236,0,tropical_north,157,0,2,70
+tanga-tz,Tanga,Tanzania,TZ,Africa,-5.07,39.09,-5.0,39.0,224876,0,tropical_south,3,1,2,71
+st-cloud-us,St. Cloud,United States of America,US,North America,45.5612,-94.1622,45.5,-94.25,112794,0,temperate_north,1160,0,2,72
+phan-thiet-vn,Phan Thiet,Vietnam,VN,Asia,10.9337,108.1001,11.0,108.0,336846,0,tropical_north,4,1,2,73
+cuttack-in,Cuttack,India,IN,Asia,20.47,85.8899,20.5,86.0,580000,0,tropical_north,59,0,2,74
+cape-coast-gh,Cape Coast,Ghana,GH,Africa,5.1104,-1.25,5.0,-1.25,143015,0,tropical_north,1,1,2,75
+khabarovsk-ru,Khabarovsk,Russia,RU,Europe,48.455,135.12,48.5,135.0,579000,0,temperate_north,302,0,2,76
+osorno-cl,Osorno,Chile,CL,South America,-40.57,-73.16,-40.5,-73.25,154131,0,temperate_south,54,0,2,77
+wamba-cd,Wamba,Dem. Rep. Congo,CD,Africa,2.1404,27.99,2.25,28.0,146871,0,tropical_north,1460,0,2,78
+townsville-au,Townsville,Australia,AU,Oceania,-19.2499,146.77,-19.25,146.75,138954,0,tropical_south,4,1,2,79
+almaty-kz,Almaty,Kazakhstan,KZ,Asia,43.3269,76.9131,43.25,77.0,1209000,0,temperate_north,1841,0,2,80
+medford-us,Medford,United States of America,US,North America,42.3266,-122.8744,42.25,-122.75,108525,0,temperate_north,116,0,2,81
+laayoune-ma,Laayoune,Morocco,MA,Africa,27.15,-13.2,27.25,-13.25,188084,0,subtropical_north,19,1,2,82
+turbat-pk,Turbat,Pakistan,PK,Asia,25.9918,63.0718,26.0,63.0,147791,0,subtropical_north,83,0,2,83
+naha-jp,Naha,Japan,JP,Asia,26.2072,127.673,26.25,127.75,905238,0,subtropical_north,1,1,2,84
+tarakan-id,Tarakan,Indonesia,ID,Asia,3.3,117.633,3.25,117.75,193069,0,tropical_north,3,1,3,85
+split-hr,Split,Croatia,HR,Europe,43.5204,16.47,43.5,16.5,214741,0,temperate_north,1,1,3,86
+honiara-sb,Honiara,Solomon Is.,SB,Oceania,-9.438,159.9498,-9.5,160.0,76328,1,tropical_south,2,1,3,87
+melekeok-pw,Melekeok,Palau,PW,Oceania,7.4874,134.6265,7.5,134.75,7026,1,tropical_north,0,1,3,88
+ukhta-ru,Ukhta,Russia,RU,Europe,63.56,53.69,63.5,53.75,102187,0,subpolar_north,472,0,3,89
+praia-cv,Praia,Cabo Verde,CV,Africa,14.9167,-23.5167,15.0,-23.5,113364,1,tropical_north,0,1,3,90
+nasik-in,Nasik,India,IN,Asia,20.0024,73.778,20.0,73.75,1473000,0,tropical_north,109,0,3,91
+turkmenabat-tm,Türkmenabat,Turkmenistan,TM,Asia,39.11,63.58,39.0,63.5,234817,0,temperate_north,781,0,3,92
+manaus-br,Manaus,Brazil,BR,South America,-3.0981,-60.002,-3.0,-60.0,1753000,0,tropical_south,833,0,3,93
+kikwit-cd,Kikwit,Dem. Rep. Congo,CD,Africa,-5.03,18.85,-5.0,18.75,637736,0,tropical_south,647,0,3,94
+maradi-ne,Niamey,Niger,NE,Africa,13.4916,7.0964,13.5,7.0,232555,0,tropical_north,846,0,3,95
+tebessa-dz,Tébessa,Algeria,DZ,Africa,35.4104,8.12,35.5,8.0,171742,0,temperate_north,162,0,3,96
+funafuti-tv,Funafuti,Tuvalu,TV,Oceania,-8.5167,179.2166,-8.5,179.25,4749,1,tropical_south,0,1,3,97
+tarabulus-lb,Ṭarābulus,Lebanon,LB,Asia,34.422,35.868,34.5,35.75,530000,0,subtropical_north,4,1,3,98
+guarapuava-br,Guarapuava,Brazil,BR,South America,-25.38,-51.48,-25.5,-51.5,150850,0,subtropical_south,276,0,3,99
+pingliang-cn,Pingliang,China,CN,Asia,35.5304,106.6801,35.5,106.75,207256,0,temperate_north,1024,0,3,100
+trondheim-no,Trondheim,Norway,NO,Europe,63.4167,10.4167,63.5,10.5,147139,0,subpolar_north,5,1,3,101
+makhachkala-ru,Makhachkala,Russia,RU,Europe,42.98,47.5,43.0,47.5,554981,0,temperate_north,1,1,3,102
+cochabamba-bo,Cochabamba,Bolivia,BO,South America,-17.41,-66.17,-17.5,-66.25,1000000,0,tropical_south,457,0,3,103
+mopti-ml,Mopti,Mali,ML,Africa,14.49,-4.18,14.5,-4.25,108456,0,tropical_north,1021,0,3,104
+tanjungpinang-id,Tanjungpinang,Indonesia,ID,Asia,0.9168,104.4714,1.0,104.5,226666,0,tropical_north,0,1,3,105
+raba-id,Raba,Indonesia,ID,Asia,-8.45,118.7666,-8.5,118.75,106101,0,tropical_south,7,1,3,106
+suva-fj,Suva,Fiji,FJ,Oceania,-18.133,178.4417,-18.25,178.5,175399,1,tropical_south,0,1,3,107
+dunedin-nz,Dunedin,New Zealand,NZ,Oceania,-45.8854,170.491,-46.0,170.5,117700,0,temperate_south,5,1,3,108
+mogadishu-so,Mogadishu,Somalia,SO,Africa,2.0686,45.3647,2.0,45.25,1100000,1,tropical_north,1,1,3,109
+imperatriz-br,Imperatriz,Brazil,BR,South America,-5.52,-47.49,-5.5,-47.5,218106,0,tropical_south,396,0,3,110
+port-louis-mu,Port Louis,Mauritius,MU,Oceanic islands,-20.1666,57.5,-20.25,57.5,595491,1,tropical_south,3,1,3,111
+tambov-ru,Tambov,Russia,RU,Europe,52.73,41.43,52.75,41.5,301482,0,temperate_north,628,0,3,112
+cork-ie,Cork,Ireland,IE,Europe,51.8986,-8.4958,52.0,-8.5,188907,0,temperate_north,6,1,3,113
+pathein-mm,Pathein,Myanmar,MM,Asia,16.7704,94.75,16.75,94.75,237089,0,tropical_north,29,1,3,114
+murmansk-ru,Murmansk,Russia,RU,Europe,68.97,33.1,69.0,33.0,319263,0,polar_north,11,1,3,115
+greeley-us,Greeley,United States of America,US,North America,40.4192,-104.74,40.5,-104.75,125410,0,temperate_north,1270,0,3,116
+quelimane-mz,Quelimane,Mozambique,MZ,Africa,-17.88,36.89,-18.0,37.0,188964,0,tropical_south,13,1,3,117
+sadah-ye,Sadah,Yemen,YE,Asia,16.9398,43.8498,17.0,43.75,105542,0,tropical_north,124,0,3,118
+khartoum-sd,Khartoum,Sudan,SD,Africa,15.59,32.5322,15.5,32.5,4754000,1,tropical_north,636,0,3,119
+david-pa,David,Panama,PA,North America,8.4333,-82.4333,8.5,-82.5,110037,0,tropical_north,17,1,3,120
+davao-ph,Davao,Philippines,PH,Asia,7.112,125.628,7.0,125.75,1402000,0,tropical_north,2,1,3,121
+warsaw-pl,Warsaw,Poland,PL,Europe,52.2519,20.9981,52.25,21.0,1707000,1,temperate_north,260,0,3,122
+san-francisco-de-macoris-do,San Francisco de Macorís,Dominican Rep.,DO,North America,19.3,-70.25,19.25,-70.25,152538,0,tropical_north,38,1,3,123
+windhoek-na,Windhoek,Namibia,NA,Africa,-22.57,17.0835,-22.5,17.0,268132,1,tropical_south,263,0,3,124
+columbia-us-2,Columbia,United States of America,US,North America,34.04,-80.9,34.0,-81.0,398093,0,subtropical_north,163,0,3,125
+tobolsk-ru,Tobolsk,Russia,RU,Europe,58.1998,68.2648,58.25,68.25,113800,0,temperate_north,912,0,3,126
+haikou-cn,Haikou,China,CN,Asia,20.05,110.32,20.0,110.25,2046189,0,tropical_north,1,1,3,127
+busan-kr,Busan,South Korea,KR,Asia,35.097,129.0081,35.0,129.0,3480000,0,temperate_north,1,1,3,128
+yakeshi-cn,Yakeshi,China,CN,Asia,49.2804,120.73,49.25,120.75,116284,0,temperate_north,928,0,3,129
+brisbane-au,Brisbane,Australia,AU,Oceania,-27.4531,153.0331,-27.5,153.0,1860000,0,subtropical_south,17,1,3,130
+lhasa-cn,Lhasa,China,CN,Asia,29.645,91.1,29.75,91.0,219599,0,subtropical_north,675,0,3,131
+reynosa-mx,Reynosa,Mexico,MX,North America,26.08,-98.3,26.0,-98.25,498654,0,subtropical_north,96,0,3,132
+gemena-cd,Gemena,Dem. Rep. Congo,CD,Africa,3.26,19.77,3.25,19.75,198056,0,tropical_north,1091,0,3,133
+biak-id,Biak,Indonesia,ID,Asia,-1.1615,136.0485,-1.25,136.0,103610,0,tropical_south,3,1,3,134
+saint-john-s-ag,Saint John's,Antigua and Barb.,AG,North America,17.118,-61.85,17.0,-61.75,35499,1,tropical_north,1,1,3,135
+bechar-dz,Béchar,Algeria,DZ,Africa,31.6111,-2.23,31.5,-2.25,143382,0,subtropical_north,387,0,3,136
+kushiro-jp,Kushiro,Japan,JP,Asia,42.975,144.3747,43.0,144.25,198566,0,temperate_north,0,1,3,137
+riyadh-sa,Riyadh,Saudi Arabia,SA,Asia,24.6428,46.7708,24.75,46.75,4465000,1,subtropical_north,363,0,3,138
+east-london-za,East London,South Africa,ZA,Africa,-32.97,27.87,-33.0,27.75,338627,0,subtropical_south,6,1,3,139
+nouakchott-mr,Nouakchott,Mauritania,MR,Africa,18.0864,-15.9753,18.0,-16.0,742144,1,tropical_north,7,1,3,140
