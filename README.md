@@ -34,7 +34,8 @@ climate-analytics/
     │       ├── open_meteo.py     # API client and call-cost formula
     │       ├── cities.py         # city selection (Natural Earth)
     │       ├── download.py       # resumable download into SQLite, import/export
-    │       └── neon.py           # loads the shared data into Neon (PostgreSQL)
+    │       ├── neon.py           # loads the shared data into Neon (PostgreSQL)
+    │       └── update.py         # adds the newest days to Neon
     ├── analysis/             # analysing it
     │   └── src/analysis/
     │       ├── stats.py          # annual statistics, anomalies and trends
@@ -82,6 +83,9 @@ cp .env.example .env       # then paste your connection string (direct, without 
 uv run load-neon --limit 2 # test with two cities
 uv run load-neon           # every city; running it again only loads what is missing
 ```
+
+After that first load, `uv run update-neon` adds the newest days of every city. ERA5 arrives about
+a week late, so the database never reaches today.
 
 `.env` holds the database password: git ignores it, so never commit or share it.
 
