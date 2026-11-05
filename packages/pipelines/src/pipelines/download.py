@@ -581,6 +581,26 @@ def export_parquet(connection, path: Path) -> int:
     return data["city_id"].nunique()
 
 
+def check_shared_city(city_id: str, rows: pd.DataFrame, path: Path) -> pd.DataFrame:
+    """Rows of one city of a shared Parquet file, sorted by date and validated like a
+    download (every day of its period, no empty values, t_min ≤ t_mean ≤ t_max)."""
+    rows = rows.sort_values("date")
+    dates = rows["date"].dt.strftime("%Y-%m-%d").tolist()
+    values = rows[list(DAILY_VARIABLES.values())]
+    if values.isna().any().any():
+        raise ValueError(f"{city_id}: empty values in {path}")
+    payload = {
+        "daily": {
+            "time": dates,
+            **{api: values[column].tolist() for api, column in DAILY_VARIABLES.items()},
+        }
+    }
+    problems = validate(payload, dates[0], dates[-1])
+    if problems:
+        raise ValueError(f"{city_id}: {'; '.join(problems)}")
+    return rows
+
+
 def import_parquet(connection, path: Path) -> int:
     """Imports the cities of a file written by `export_parquet`.
 
@@ -600,23 +620,9 @@ def import_parquet(connection, path: Path) -> int:
     for city_id, rows in data.groupby("city_id", observed=True):
         if city_id not in known or city_id in complete:
             continue
-        rows = rows.sort_values("date")
+        rows = check_shared_city(city_id, rows, path)
         dates = rows["date"].dt.strftime("%Y-%m-%d").tolist()
         values = rows[list(DAILY_VARIABLES.values())]
-        if values.isna().any().any():
-            raise ValueError(f"{city_id}: empty values in {path}")
-        payload = {
-            "daily": {
-                "time": dates,
-                **{
-                    api: values[column].tolist()
-                    for api, column in DAILY_VARIABLES.items()
-                },
-            }
-        }
-        problems = validate(payload, dates[0], dates[-1])
-        if problems:
-            raise ValueError(f"{city_id}: {'; '.join(problems)}")
 
         cell = rows[SHARED_CELL_COLUMNS].iloc[0].tolist()
         with connection:  # all or nothing
