@@ -33,7 +33,8 @@ climate-analytics/
     │   └── src/pipelines/
     │       ├── open_meteo.py     # API client and call-cost formula
     │       ├── cities.py         # city selection (Natural Earth)
-    │       └── download.py       # resumable download into SQLite, import/export
+    │       ├── download.py       # resumable download into SQLite, import/export
+    │       └── neon.py           # loads the shared data into Neon (PostgreSQL)
     ├── analysis/             # analysing it
     │   └── src/analysis/
     │       ├── stats.py          # annual statistics, anomalies and trends
@@ -70,6 +71,32 @@ The daily data (4.4 million rows, ~250 MB as SQLite) are **not in git**: noteboo
 
 Whoever has the complete database can write `data/climate.parquet` for the others (section 7 of
 notebook 03).
+
+### Loading the data into Neon
+
+The web app will read the data from [Neon](https://neon.com/) (PostgreSQL in the cloud). With
+`data/climate.parquet` in place:
+
+```bash
+cp .env.example .env       # then paste your connection string (direct, without -pooler)
+uv run load-neon --limit 2 # test with two cities
+uv run load-neon           # every city; running it again only loads what is missing
+```
+
+`.env` holds the database password: git ignores it, so never commit or share it.
+
+To read without being able to change anything, create a read-only user once, in the Neon SQL Editor
+(not in the Neon Console: the roles created there are administrators):
+
+```sql
+CREATE ROLE climate_reader LOGIN PASSWORD 'a-long-random-password';
+GRANT CONNECT ON DATABASE neondb TO climate_reader;
+GRANT USAGE ON SCHEMA public TO climate_reader;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO climate_reader;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO climate_reader;
+```
+
+Its connection string is the same one with this user and password. Share it only privately.
 
 ## Notebooks
 
