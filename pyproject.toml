@@ -8,3 +8,7 @@ dev-dependencies = [
     "pre-commit>=3.0",
     "jupyterlab>=4.6.5",
 ]
+
+# `uv run dagster dev` loads this module (see the README)
+[tool.dagster]
+module_name = "orchestration.definitions"

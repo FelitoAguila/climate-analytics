@@ -36,6 +36,7 @@ climate-analytics/
     │       ├── download.py       # resumable download into SQLite, import/export
     │       ├── neon.py           # loads the shared data into Neon (PostgreSQL)
     │       └── update.py         # adds the newest days to Neon
+    ├── orchestration/        # Dagster: the daily update and its quality checks
     ├── analysis/             # analysing it
     │   └── src/analysis/
     │       ├── stats.py          # annual statistics, anomalies and trends
@@ -101,6 +102,32 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO climate_read
 ```
 
 Its connection string is the same one with this user and password. Share it only privately.
+
+### Daily update with Dagster and GitHub Actions
+
+The update runs by itself every day. Two pieces work together:
+
+| Piece | What it does | Where |
+|---|---|---|
+| **Dagster** | Defines *what* runs: the asset `daily_temperatures` (the update) and three quality checks | `packages/orchestration/` |
+| **GitHub Actions** | Decides *when*: every day at 06:00 UTC it runs the Dagster job `daily_update` | `.github/workflows/update-neon.yml` |
+
+The checks use the read-only user and fail the run if any city is more than 10 days behind
+(`MAX_DAYS_BEHIND`), if a day is missing, or if a day has `t_min > t_mean` or `t_mean > t_max`.
+A failed run is marked in red in the **Actions** tab, and GitHub sends an email.
+
+It needs two repository secrets (Settings → Secrets and variables → Actions):
+`DATABASE_URL` and `READONLY_DATABASE_URL`. Run it by hand with **Actions → Update Neon → Run workflow**.
+
+To see it in the Dagster web panel on your computer (history kept in `.dagster/`, ignored by git):
+
+```bash
+DAGSTER_HOME=$PWD/.dagster uv run dagster dev
+DAGSTER_HOME=$PWD/.dagster uv run dagster job execute -m orchestration.definitions -j daily_update
+```
+
+GitHub may start the scheduled run some minutes late, and it pauses scheduled workflows after
+60 days without activity in the repository (re-enable them in the Actions tab).
 
 ## Notebooks
 

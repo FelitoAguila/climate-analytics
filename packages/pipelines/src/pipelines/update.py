@@ -17,7 +17,7 @@ with an error so that a scheduled run reports it.
 import argparse
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from functools import partial
 
@@ -175,29 +175,44 @@ def write_days(connection, city_id: str, days: list[tuple]) -> None:
         cursor.executemany(UPSERT, [(city_id, *day) for day in days])
 
 
-def update(connection, cities: list[City], today: date, log=print) -> list[str]:
-    """Updates each city and logs what changed. Returns the cities that failed."""
+@dataclass
+class Summary:
+    """What an update did, to log it or show it in Dagster."""
+
+    new_days: int = 0
+    changed_days: int = 0
+    largest_change: float = 0.0
+    api_calls: float = 0.0
+    failed: list[str] = field(default_factory=list)
+    complete_until: date | None = None  # the earliest last day of the cities updated
+
+
+def update(connection, cities: list[City], today: date, log=print) -> Summary:
+    """Updates each city and logs what changed. Returns a summary."""
     # fetch_with_retries records every call in a database: here it only lasts for this run
     usage = open_db(":memory:")
     config = DownloadConfig()
-    failed, n_new, n_changed, largest_change = [], 0, 0, 0.0
+    summary = Summary()
     for position, city in enumerate(cities, start=1):
         try:
             days = fetch_days(usage, city, today, config, log)
         except DailyLimitReached as error:
             log(f"API daily limit reached ({error}). Stopping.")
-            failed.extend(c.id for c in cities[position - 1 :])
+            summary.failed.extend(c.id for c in cities[position - 1 :])
             break
         except DownloadError as error:
             log(f"[{position}/{len(cities)}] {city.id}: FAILED, {error}")
-            failed.append(city.id)
+            summary.failed.append(city.id)
             continue
 
         changes = compare(days, stored_days(connection, city))
         write_days(connection, city.id, changes.new + changes.changed)
-        n_new += len(changes.new)
-        n_changed += len(changes.changed)
-        largest_change = max(largest_change, changes.largest_change)
+        summary.new_days += len(changes.new)
+        summary.changed_days += len(changes.changed)
+        summary.largest_change = max(summary.largest_change, changes.largest_change)
+        last_day = days[-1][0]
+        if summary.complete_until is None or last_day < summary.complete_until:
+            summary.complete_until = last_day
         log(
             f"[{position}/{len(cities)}] {city.id}: {len(changes.new)} new, "
             f"{len(changes.changed)} changed, complete until {days[-1][0]}"
@@ -205,13 +220,14 @@ def update(connection, cities: list[City], today: date, log=print) -> list[str]:
         if position < len(cities):
             time.sleep(PAUSE_SECONDS)
 
-    log(
-        f"Done: {n_new:,} new days, {n_changed:,} changed "
-        f"(largest change {largest_change:.2f} °C), {usage_24h(usage):.0f} API calls, "
-        f"{len(failed)} cities failed"
-    )
+    summary.api_calls = usage_24h(usage)
     usage.close()
-    return failed
+    log(
+        f"Done: {summary.new_days:,} new days, {summary.changed_days:,} changed "
+        f"(largest change {summary.largest_change:.2f} °C), "
+        f"{summary.api_calls:.0f} API calls, {len(summary.failed)} cities failed"
+    )
+    return summary
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -226,6 +242,6 @@ def main(argv: list[str] | None = None) -> None:
         cities = read_cities(connection)[: args.limit]
         # flush: a scheduled run writes to a file, and it would show nothing until the end
         log = partial(print, flush=True)
-        failed = update(connection, cities, datetime.now(UTC).date(), log)
-    if failed:
-        raise SystemExit(f"Could not update: {', '.join(failed)}")
+        summary = update(connection, cities, datetime.now(UTC).date(), log)
+    if summary.failed:
+        raise SystemExit(f"Could not update: {', '.join(summary.failed)}")

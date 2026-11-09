@@ -1,0 +1,18 @@
+[project]
+name = "orchestration"
+version = "0.1.0"
+description = "Dagster: runs and checks the daily update of the Neon database"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dagster>=1.13.29",
+    "dagster-webserver>=1.13.29",
+    "pipelines",
+]
+
+[tool.uv.sources]
+pipelines = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"

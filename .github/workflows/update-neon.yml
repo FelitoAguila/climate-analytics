@@ -1,0 +1,44 @@
+# Every day, GitHub starts a clean machine, installs the project and runs the Dagster job
+# `daily_update`: it adds the newest days to Neon and then checks the data quality.
+# If anything fails, the run is marked in red and GitHub sends an email.
+name: Update Neon
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # every day at 06:00 UTC (GitHub may start it some minutes late)
+  workflow_dispatch: # the "Run workflow" button, to run it by hand
+
+permissions:
+  contents: read # it only needs to read the code
+
+concurrency:
+  group: update-neon # never two runs at the same time
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30 # a normal run takes about 6 minutes
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v7
+
+      - name: Install uv (it installs Python 3.12 from .python-version)
+        uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.13.6"
+          enable-cache: true
+
+      - name: Install the project
+        run: uv sync --locked
+
+      - name: Run the daily job (update + quality checks)
+        env:
+          # Repository secrets: GitHub hides their value in the logs
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          READONLY_DATABASE_URL: ${{ secrets.READONLY_DATABASE_URL }}
+        run: |
+          # Dagster keeps its run history here; the machine is deleted at the end
+          export DAGSTER_HOME="$RUNNER_TEMP/dagster"
+          mkdir -p "$DAGSTER_HOME"
+          uv run dagster job execute -m orchestration.definitions -j daily_update

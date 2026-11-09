@@ -14,3 +14,6 @@ data/*
 
 # Secrets: the connection string to the database
 .env
+
+# Dagster: local run history (DAGSTER_HOME)
+.dagster/
