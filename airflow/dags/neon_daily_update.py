@@ -1,6 +1,7 @@
 """DAG `neon_daily_update`: adds the newest days to the Neon database and checks them.
 
 Airflow reads this file and shows the DAG in its web panel (http://localhost:8080).
+In production, GitHub Actions runs it once a day (.github/workflows/airflow-daily.yml).
 
     update_neon >> [data_is_fresh, no_missing_days, temperatures_are_consistent]
 

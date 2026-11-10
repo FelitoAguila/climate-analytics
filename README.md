@@ -102,10 +102,10 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO climate_read
 
 Its connection string is the same one with this user and password. Share it only privately.
 
-### Daily update with Airflow (local, to learn)
+### Daily update with Airflow
 
 `airflow/dags/neon_daily_update.py` runs the update and checks the data, with
-[Apache Airflow](https://airflow.apache.org/) on your computer:
+[Apache Airflow](https://airflow.apache.org/):
 
 ```
 update_neon >> [data_is_fresh, no_missing_days, temperatures_are_consistent]
@@ -115,8 +115,30 @@ update_neon >> [data_is_fresh, no_missing_days, temperatures_are_consistent]
 - The three checks (`SQLCheckOperator`) use the read-only Airflow connection `neon_reader`. They fail
   if a city is more than `max_days_behind` days behind (10 by default; it can be changed when
   triggering the DAG), if a day is missing, or if `t_min > t_mean` or `t_mean > t_max`.
-- Every day at 10:00 (São Paulo time), without catching up the days the computer was off, and with
-  one retry after 10 minutes. It only runs while Airflow is running.
+- One retry after 10 minutes if a task fails.
+
+#### In production: GitHub Actions
+
+`.github/workflows/airflow-daily.yml` runs the DAG every day at 13:00 UTC (10:00 in São Paulo): it
+installs the project and Airflow on a clean machine and runs `airflow dags test neon_daily_update`
+once. GitHub's cron plays the role of Airflow's scheduler, so no server is needed. It needs two
+repository secrets (Settings → Secrets and variables → Actions):
+
+| Secret | Used for |
+|---|---|
+| `DATABASE_URL` | `update-neon` writes with it |
+| `READONLY_DATABASE_URL` | Becomes the Airflow connection `neon_reader` (`AIRFLOW_CONN_NEON_READER`) |
+
+Run it by hand with **Actions → Airflow daily update → Run workflow** (`max_days_behind` can be
+changed there; 1 tests a failure). A failed run is marked in red and GitHub sends an email. There is
+no Airflow web panel in production: each run's log stays in the Actions tab. GitHub may start the
+scheduled run some minutes late, and it pauses scheduled workflows after 60 days without activity in
+the repository (re-enable them in the Actions tab).
+
+#### On your computer: to learn and develop
+
+The same DAG runs locally with the Airflow web panel. Its schedule (every day at 10:00, São Paulo
+time, without catching up the days the computer was off) only applies while Airflow is running.
 
 **Install** (once): Airflow pins hundreds of versions, so it has its own environment.
 
