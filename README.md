@@ -102,6 +102,40 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO climate_read
 
 Its connection string is the same one with this user and password. Share it only privately.
 
+### Daily update with Airflow (local, to learn)
+
+`airflow/dags/neon_daily_update.py` runs the update and checks the data, with
+[Apache Airflow](https://airflow.apache.org/) on your computer:
+
+```
+update_neon >> [data_is_fresh, no_missing_days, temperatures_are_consistent]
+```
+
+- `update_neon` (`BashOperator`) runs `uv run update-neon`, which reads `.env` as usual.
+- The three checks (`SQLCheckOperator`) use the read-only Airflow connection `neon_reader`. They fail
+  if a city is more than `max_days_behind` days behind (10 by default; it can be changed when
+  triggering the DAG), if a day is missing, or if `t_min > t_mean` or `t_mean > t_max`.
+- Every day at 10:00 (São Paulo time), without catching up the days the computer was off, and with
+  one retry after 10 minutes. It only runs while Airflow is running.
+
+**Install** (once): Airflow pins hundreds of versions, so it has its own environment.
+
+```bash
+uv venv --python 3.12 .venv-airflow
+uv pip install -p .venv-airflow/bin/python "apache-airflow==3.4.0" apache-airflow-providers-postgres pytest \
+  --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.4.0/constraints-3.12.txt"
+```
+
+**Start** it with `./airflow/start.sh` and open http://localhost:8080. The user is `admin`; its
+password is in `airflow/simple_auth_manager_passwords.json.generated`. Everything Airflow generates
+in `airflow/` is ignored by git, except the DAGs, the tests and the start script.
+
+**Connection** (once): in **Admin → Connections**, add `neon_reader` of type Postgres with the
+read-only user: host, database `neondb`, login `climate_reader`, its password, port 5432 and the
+extra `{"sslmode": "require"}`.
+
+**Tests:** `.venv-airflow/bin/python -m pytest airflow/tests` (`uv run pytest` skips them).
+
 ## Notebooks
 
 | Notebook | What it does | Needs |
