@@ -1,0 +1,43 @@
+# Continuous integration: on every pull request, and on every push to main, GitHub installs the
+# project on a clean machine and runs the linter and the tests. The pull request shows a green check
+# or a red cross before anyone merges it. No secrets: the tests use neither the network nor Neon.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read # it only needs to read the code
+
+concurrency:
+  # A new commit on the same pull request cancels the run of the previous one
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.13.6"
+          enable-cache: true
+
+      - name: Install the project (fails if uv.lock is out of date)
+        run: uv sync --locked
+
+      - name: Lint (ruff check)
+        run: uv run ruff check notebooks packages
+
+      - name: Formatting (ruff format)
+        run: uv run ruff format --check notebooks packages
+
+      - name: Tests (pytest)
+        run: uv run pytest
