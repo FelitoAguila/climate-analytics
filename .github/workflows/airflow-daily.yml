@@ -1,0 +1,71 @@
+# Every day, GitHub starts a clean machine, installs the project and Airflow, and runs the DAG
+# `neon_daily_update` once (`airflow dags test`): the update and its three quality checks.
+# GitHub's cron plays the role of Airflow's scheduler. If anything fails, the run is marked in red
+# and GitHub sends an email.
+name: Airflow daily update
+
+on:
+  schedule:
+    - cron: "0 13 * * *" # every day at 13:00 UTC = 10:00 in São Paulo (it may start some minutes late)
+  workflow_dispatch: # the "Run workflow" button
+    inputs:
+      max_days_behind:
+        description: "Freshness limit in days (10; use 1 to test a failure)"
+        type: number
+        default: 10
+
+permissions:
+  contents: read # it only needs to read the code
+
+concurrency:
+  group: neon-daily-update # never two runs at the same time
+  cancel-in-progress: false
+
+env:
+  AIRFLOW_VERSION: "3.4.0"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    # A normal run takes about 10 minutes; with retries (10 minutes each) it can take ~30
+    timeout-minutes: 45
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.13.6"
+          enable-cache: true
+
+      - name: Install the project (it runs the update)
+        run: uv sync --locked
+
+      - name: Install Airflow in its own environment, pinned by its constraints file
+        run: |
+          uv venv --python "$PYTHON_VERSION" .venv-airflow
+          uv pip install -p .venv-airflow/bin/python \
+            "apache-airflow==$AIRFLOW_VERSION" apache-airflow-providers-postgres \
+            --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-$AIRFLOW_VERSION/constraints-$PYTHON_VERSION.txt"
+          echo "$PWD/.venv-airflow/bin" >> "$GITHUB_PATH"
+
+      - name: Run the DAG (update + quality checks)
+        env:
+          # A new, empty Airflow on every run; the machine is deleted at the end
+          AIRFLOW_HOME: ${{ runner.temp }}/airflow
+          AIRFLOW__CORE__DAGS_FOLDER: ${{ github.workspace }}/airflow/dags
+          AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+          # Repository secrets: GitHub hides their value in the logs
+          DATABASE_URL: ${{ secrets.DATABASE_URL }} # update-neon writes with it
+          AIRFLOW_CONN_NEON_READER: ${{ secrets.READONLY_DATABASE_URL }} # the connection neon_reader
+          # Empty on the scheduled runs: then the DAG's default (10) applies
+          MAX_DAYS_BEHIND: ${{ inputs.max_days_behind }}
+        run: |
+          airflow db migrate
+          if [[ "$MAX_DAYS_BEHIND" =~ ^[0-9]+$ ]]; then
+            airflow dags test neon_daily_update --conf "{\"max_days_behind\": $MAX_DAYS_BEHIND}"
+          else
+            airflow dags test neon_daily_update
+          fi

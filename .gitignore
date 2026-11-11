@@ -14,3 +14,11 @@ data/*
 
 # Secrets: the connection string to the database
 .env
+
+# Airflow (local, to learn): its own environment and the files it generates.
+# Only the DAGs and the start script are versioned.
+.venv-airflow/
+airflow/*
+!airflow/dags/
+!airflow/start.sh
+!airflow/tests/
