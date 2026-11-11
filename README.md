@@ -122,6 +122,11 @@ uv run ruff check notebooks packages
 uv run ruff format notebooks packages
 ```
 
+The same checks run automatically on GitHub (`.github/workflows/ci.yml`) on every pull request and
+on every push to `main`: `ruff check`, `ruff format --check` and `pytest`, after `uv sync --locked`
+(which fails if `uv.lock` is out of date). The pull request shows a green check or a red cross; run
+the commands above before pushing to see the same result. It needs no secrets.
+
 ## Data sources
 
 - **Temperatures:** [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api)
