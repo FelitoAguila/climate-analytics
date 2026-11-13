@@ -2,21 +2,20 @@
 
 from __future__ import annotations
 
-import os
+from pathlib import Path
 
 from dash import Dash
-from dotenv import load_dotenv
 
 from . import config
 from .callbacks import register_callbacks
 from .components.shell import shell
+from .settings import get_settings
 
-load_dotenv()
-
-_ASSETS_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+_ASSETS_FOLDER = str(Path(__file__).resolve().parent / "assets")
 
 
 def create_app() -> Dash:
+    get_settings()
     app = Dash(
         __name__,
         title=config.APP_NAME,
@@ -39,11 +38,8 @@ server = app.server
 
 
 def main() -> None:
-    app.run(
-        debug=os.getenv("DASH_DEBUG", "true").lower() == "true",
-        host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8050")),
-    )
+    settings = get_settings()
+    app.run(debug=settings.dash_debug, host=settings.host, port=settings.port)
 
 
 if __name__ == "__main__":

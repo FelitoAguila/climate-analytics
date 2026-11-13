@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import pytest
-
 from dash_app.app import create_app
 from dash_app.callbacks.search import apply_filters, build_search_href
 from dash_app.data import placeholder
-from dash_app.pages import registry
-from dash_app.pages import features
+from dash_app.pages import features, registry
 from dash_app.utils import is_active
 
 
@@ -52,7 +50,9 @@ def test_resolve_not_found():
 def test_placeholder_data():
     frame = placeholder.records()
     assert not frame.empty
-    assert {"id", "name", "category", "status", "score", "updated"} <= set(frame.columns)
+    assert {"id", "name", "category", "status", "score", "updated"} <= set(
+        frame.columns
+    )
     assert placeholder.get_record("record-001") is not None
     assert placeholder.get_record("nope") is None
 
@@ -144,4 +144,3 @@ def test_features_dashboard_layout():
 
 def test_sidenav_callback_registered(app):
     assert any("mp-sidenav" in key for key in app.callback_map)
-

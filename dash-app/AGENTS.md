@@ -27,16 +27,26 @@ workspace, root `.venv`, or sibling packages.
 - `.env` is git-ignored. Never commit it, print it, log its contents, or echo the connection
   string. Connection errors must not include the URL or password.
 - The app must use a **read-only** Neon role. Never use the loader/admin credentials here.
-- Load the env file explicitly from `dash-app/.env`; do not rely on the current working
-  directory, because the monorepo root also has a `.env`.
-- Setup: `cp .env.example .env`, then paste the read-only connection string.
+- Settings use `pydantic-settings`: environment variables take precedence over the explicit
+  `dash-app/.env` file. Do not rely on the current working directory.
+- Missing or invalid configuration fails at startup (`create_app()` calls `get_settings()`).
+  Runtime database outages still surface as `DataUnavailable`.
+- Local setup: `cp .env.example .env`, then paste the read-only connection string.
+- Production (Render): set secrets in the platform environment, set `DASH_DEBUG=false`, and
+  never upload `.env`.
 
 | Variable | Purpose |
 | --- | --- |
-| `READONLY_DATABASE_URL` | Read-only Neon connection string (required for data features) |
+| `READONLY_DATABASE_URL` | Read-only Neon connection string (required) |
 | `HOST` | Bind address (default `0.0.0.0`) |
 | `PORT` | Port (default `8050`) |
-| `DASH_DEBUG` | Dash debug mode (default `true`) |
+| `DASH_DEBUG` | Dash debug mode (default `false`) |
+| `DB_POOL_SIZE` | Pool size (default `5`) |
+| `DB_MAX_OVERFLOW` | Extra pooled connections (default `5`) |
+| `DB_POOL_RECYCLE_SECONDS` | Connection recycle age (default `300`) |
+| `DB_POOL_TIMEOUT_SECONDS` | Pool wait timeout (default `10`) |
+| `DB_CONNECT_TIMEOUT_SECONDS` | Neon connect timeout (default `10`) |
+| `DB_STATEMENT_TIMEOUT_MS` | Statement timeout (default `15000`) |
 
 ## Data source and schema
 
@@ -64,19 +74,49 @@ Query guidance:
   and columns a page needs.
 - Filter by `city_id` and/or `date` so the `daily` primary key is used.
 - Always use parameterised queries; never interpolate user input into SQL.
-- Query per need, with a **small cache** (TTL or `lru_cache`) for expensive aggregates.
-  Do not preload the full dataset at startup.
+- Query per need, with the `data.db.ttl_cache` cache for expensive aggregates. Do not
+  preload the full dataset at startup.
 - Shape results with pandas, but keep large work in PostgreSQL.
 - Tests must not require Neon or the network: mock/fixture the data layer.
+
+## Data layer
+
+The read-only data layer is implemented under `src/dash_app/data/`; see
+`src/dash_app/data/README.md` for the full reference. In short:
+
+- `settings.py` defines a frozen `Settings` model with `pydantic-settings`, validates
+  `READONLY_DATABASE_URL` as a `SecretStr`, and provides `get_settings()` and
+  `database_url()` (normalised to `postgresql+psycopg://`).
+- `data/db.py` owns the lazy SQLAlchemy engine, connection pool, `fetch_df()`, the
+  `cachetools` TTL cache and SQL error wrapping.
+- `data/queries.py` owns all SQL and DataFrame shaping.
+- `data/__init__.py` is the public API; pages and callbacks import from `dash_app.data`.
+- Sessions are read-only (`default_transaction_read_only=on`), with a configurable
+  statement timeout (default 15 s).
+- Exceptions: `ConfigurationError` and `DataUnavailable`, both under `DataLayerError`.
+  Pages should catch `DataUnavailable` and show a notification.
+- Cached functions return DataFrame copies. Use `clear_data_caches()` after a refresh or
+  in tests.
+
+Public query API:
+
+| Function | Purpose |
+| --- | --- |
+| `list_cities()` | All city metadata in download order |
+| `get_city(city_id)` | One city or `None` |
+| `city_daily(city_id, start=None, end=None)` | Daily temperatures |
+| `city_annual_stats(city_id)` | Annual means, percentiles and anomalies |
+| `city_summaries()` | Per-city warming metrics |
+| `data_status()` | Coverage and freshness (`DatasetStatus`) |
 
 ## Current state
 
 - The MP-style shell is implemented and tested (`uv run pytest`).
+- The read-only data layer is implemented and tested offline (SQLAlchemy + psycopg3,
+  cachetools, lazy engine, query API, error wrapping).
 - Generic template pages still exist: home, features dashboard, browse list, detail, about
-  and 404. Browse/detail still read `data/placeholder.py`.
+  and 404. Browse/detail still read `data/placeholder.py`; migrate them to the data API next.
 - Branding, navigation and copy are still template placeholders.
-- No database dependency or query layer exists yet. `READONLY_DATABASE_URL` is not used by
-  the app yet.
 
 ## Architecture
 
@@ -89,6 +129,8 @@ dash-app/
 │   ├── __init__.py          # main() -> lazy import of app.main
 │   ├── __main__.py          # python -m dash_app
 │   ├── app.py               # create_app(): Dash instance, external CSS, layout, callbacks, run()
+│   ├── settings.py          # pydantic-settings model + read-only URL normalisation
+│   ├── errors.py            # DataLayerError, ConfigurationError, DataUnavailable
 │   ├── config.py            # APP_* branding, theme tokens, NAV_LINKS, ABOUT_MENU, DASHBOARD_NAV, FOOTER_LINKS
 │   ├── utils.py             # is_active(href, path) helper
 │   ├── components/
@@ -115,17 +157,22 @@ dash-app/
 │   │   ├── sidenav.py       # sidebar expand/collapse toggle (clientside)
 │   │   └── theme.py         # light/dark toggle with dcc.Store persistence (clientside)
 │   ├── data/
-│   │   └── placeholder.py   # neutral dummy rows; replace with DB-backed queries
+│   │   ├── __init__.py      # public read-only data API
+│   │   ├── db.py            # lazy engine, fetch_df(), TTL cache, error wrapping
+│   │   ├── queries.py       # SQL + DataFrame shaping
+│   │   ├── README.md        # data-layer reference
+│   │   └── placeholder.py   # neutral dummy rows; remove after pages migrate
 │   └── assets/
 │       ├── theme.css        # MP-inspired overrides + dark theme
 │       └── logo.svg
 └── tests/
-    └── test_navigation.py   # registry, filters, active-link, app bootstrap, index smoke test
+    ├── test_navigation.py   # registry, filters, active-link, app bootstrap, index smoke test
+    └── test_data.py         # offline data-layer tests
 ```
 
-When adding data access, keep it isolated from pages: create a `data/` module (for example
-`data/db.py` for the connection and `data/queries.py` for SQL) and have pages/callbacks call
-functions that return DataFrames. Do not scatter SQL across layout or callback modules.
+Keep data access isolated from pages: add SQL to `data/queries.py`, shape DataFrames there,
+and have pages/callbacks call the public functions from `dash_app.data`. Do not scatter SQL
+across layout or callback modules.
 
 **Import boundary:** keep this app self-contained. Do not import the monorepo's `analysis`,
 `pipelines`, or other sibling packages. If shared code is needed later, it must be added to
@@ -175,9 +222,12 @@ Routing mirrors MP: manual `dcc.Location` + callbacks, not Dash Pages. Dynamic
 | Visual style | Bulma + custom `theme.css` (authentic MP look), Font Awesome icons |
 | Routing | Manual `dcc.Location` + callbacks; dynamic `/<section>/<id>` |
 | Data source | Neon PostgreSQL, `public.cities` and `public.daily`, read-only |
-| Credentials | `READONLY_DATABASE_URL` from `dash-app/.env`; never use writer credentials |
+| Credentials | `READONLY_DATABASE_URL` from the environment or `dash-app/.env`; never use writer credentials |
 | Data access | Query per need + small cache; no full preload at startup; aggregate in SQL |
-| DB client | **Open** — choose when implementing the first query (candidates: psycopg3 + pandas; SQLAlchemy + psycopg). Do not add both. |
+| DB client | SQLAlchemy Core + psycopg3 (SQLAlchemy owns the pool; psycopg is the driver) |
+| Caching | `cachetools.TTLCache`, thread-safe, bounded; cached DataFrames are copied |
+| Configuration | `pydantic-settings` model, validated at startup, URL stored as `SecretStr` |
+| Errors | `DataLayerError` → `ConfigurationError` / `DataUnavailable`; UI shows a notification |
 | Coupling | Self-contained app; no imports from sibling monorepo packages |
 | Environment | Standalone uv project with its own `.venv`; not part of the root workspace |
 | Do NOT use | `crystal_toolkit`, `dash-mp-components`, `mp-react-components` |
@@ -187,7 +237,9 @@ Routing mirrors MP: manual `dcc.Location` + callbacks, not Dash Pages. Dynamic
 - Content may now be climate-specific; keep the shell and components reusable where easy.
 - Config-driven: nav items in `config.NAV_LINKS` / `config.ABOUT_MENU` /
   `config.DASHBOARD_NAV`; pages in `pages/registry.py`.
-- Keep SQL in the `data/` layer, parameterised, and scoped to what the page needs.
+- Keep SQL in `data/queries.py`, parameterised, and scoped to what the page needs.
+- Use `fetch_df()`; do not create ad-hoc engines or connections outside `data/db.py`.
+- Decorate expensive queries with `@ttl_cache(...)` and keep TTLs in `queries.py`.
 - Treat the database as read-only. Never add write/update/delete statements.
 - Do not expose connection strings or raw database errors to the UI.
 - No comments in code unless necessary.
@@ -213,13 +265,14 @@ Completed from the template:
 
 Next, in rough order:
 
-- [ ] Decide the DB client (psycopg3 + pandas vs SQLAlchemy + psycopg) with the user.
-- [ ] Add the DB dependency and a read-only `data/` layer using `READONLY_DATABASE_URL`.
+- [x] Choose and add the DB client (SQLAlchemy Core + psycopg3).
+- [x] Implement the read-only `data/` layer using `READONLY_DATABASE_URL`.
+- [x] Add TTL caching for expensive aggregates.
+- [x] Harden configuration with pydantic-settings and fail-fast validation.
 - [ ] Replace `data/placeholder.py` usage with real queries for the pages that need data.
 - [ ] Plan the climate feature set in detail with the user. Directions already identified:
       global maps and rankings, and database freshness/status. Per-city browse/detail,
       warming trends, distributions (bells) and city comparison may follow; specifics are
       still to be defined.
-- [ ] Add caching for expensive aggregates (TTL or `lru_cache`).
 - [ ] Update branding, navigation, copy and the README for climate-analytics.
 - [ ] Optional: configure ruff (lint/format) and add it to dev dependencies.
