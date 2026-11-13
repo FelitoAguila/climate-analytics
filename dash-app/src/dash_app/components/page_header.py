@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from dash import html
 
@@ -26,7 +27,9 @@ def page_header(
                     html.Div(
                         className="mp-page-heading",
                         children=[
-                            html.Span(html.I(className=icon), className="icon mp-page-icon"),
+                            html.Span(
+                                html.I(className=icon), className="icon mp-page-icon"
+                            ),
                             html.H1(title, className="mp-page-title"),
                         ],
                     ),

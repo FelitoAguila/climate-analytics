@@ -21,7 +21,9 @@ def layout() -> html.Div:
                                 "The page you are looking for could not be found.",
                                 className="subtitle is-5 has-text-white",
                             ),
-                            b.button("Back to home", href="/", color="light", rounded=True),
+                            b.button(
+                                "Back to home", href="/", color="light", rounded=True
+                            ),
                         ],
                         className="has-text-centered",
                     )

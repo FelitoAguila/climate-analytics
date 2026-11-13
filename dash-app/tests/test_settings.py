@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from dash_app import settings
 from dash_app.app import create_app
-from pydantic import ValidationError
 
 VALID_URL = "postgresql://climate_reader:secret@db.example/neondb?sslmode=require"
 

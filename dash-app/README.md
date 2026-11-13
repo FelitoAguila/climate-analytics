@@ -54,11 +54,72 @@ Environment variables:
 `.env.example` as the safe reference. Configuration is validated at startup: a missing or
 invalid URL stops the app with a clear error.
 
-### Deploying to Render
+## Deploying to Render
 
-Set `READONLY_DATABASE_URL` in Render's Environment tab as a secret, set
-`DASH_DEBUG=false`, and let Render provide `PORT`. Do not upload `.env`. Use a production
-server such as Gunicorn with `dash_app.app:server`.
+The repository includes a root [`render.yaml`](../render.yaml) Blueprint that points Render
+at the `dash-app` directory. The app is served by Gunicorn through `dash_app.app:server`.
+
+### Before deploying
+
+1. Merge the dashboard branch into `main`.
+2. Confirm `uv run pytest` and `uv run ruff check src tests` pass from `dash-app/`.
+3. Create or reuse a **read-only** Neon role.
+4. Copy the pooled Neon connection string for the app. If you hit prepared-statement
+   errors through the pooler, use the direct URL instead (without `-pooler`).
+
+### Option A: Render Blueprint
+
+1. Push the repository to GitHub with `render.yaml` at the root.
+2. In Render, choose **New → Blueprint**.
+3. Select the repository and the `main` branch.
+4. When prompted, set `READONLY_DATABASE_URL` to the secret Neon URL.
+5. Apply the Blueprint.
+
+Render reads `rootDir: dash-app`, so `pyproject.toml`, `uv.lock` and `.python-version`
+come from the dashboard project.
+
+### Option B: Manual Web Service
+
+| Setting | Value |
+| --- | --- |
+| Language | Python 3 |
+| Root Directory | `dash-app` |
+| Build Command | `uv sync --frozen --no-dev` |
+| Start Command | `uv run --frozen --no-dev gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - dash_app.app:server` |
+| Health Check Path | `/healthz` |
+| Plan | Free |
+
+Environment variables:
+
+| Variable | Value |
+| --- | --- |
+| `READONLY_DATABASE_URL` | Secret pooled Neon URL |
+| `DASH_DEBUG` | `false` |
+| `UV_VERSION` | `0.13.6` |
+
+Do not upload `.env`. Render provides `PORT`; Gunicorn binds to `0.0.0.0:$PORT`.
+`HOST` and `PORT` from `settings.py` are only used by the local `uv run dash-app` command.
+
+### After deploying
+
+- Open `/` and confirm the Overview cards show live data.
+- Confirm `/healthz` returns `200` with `{"status": "ok"}`.
+- Check the theme toggle, `/about` and `/features`.
+- Review Render logs for startup errors, database errors or worker restarts.
+
+### Notes and troubleshooting
+
+- The free tier sleeps after inactivity, so the first request can be slow. Neon may also
+  cold-start.
+- Keep the pool small; the defaults (`DB_POOL_SIZE=5`, `DB_MAX_OVERFLOW=5`) are fine for one
+  Render instance.
+- The app validates settings at startup. A missing or invalid `READONLY_DATABASE_URL` stops
+  the worker with a clear validation error.
+- If Render reports “no open ports detected”, verify the start command binds
+  `0.0.0.0:$PORT`.
+- If the build cannot find `uv.lock`, set the Root Directory to `dash-app`.
+- If the pooled Neon URL produces intermittent prepared-statement errors, switch to the
+  direct Neon URL or disable prepared statements in the driver.
 
 ## Project layout
 
@@ -80,7 +141,8 @@ src/dash_app/
 └── assets/           # theme.css + logo.svg
 tests/
 ├── test_navigation.py
-└── test_data.py
+├── test_data.py
+└── test_settings.py
 ```
 
 ## Adding a page
@@ -151,4 +213,4 @@ uv run pytest
 
 ## License
 
-MIT
+[MIT](LICENSE)

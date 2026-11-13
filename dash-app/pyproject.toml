@@ -17,6 +17,7 @@ dependencies = [
     "cachetools>=8.0.0",
     "pydantic>=2.14.1",
     "pydantic-settings>=2.16.3",
+    "gunicorn>=27.0.1",
 ]
 
 [project.scripts]
@@ -25,6 +26,7 @@ dash-app = "dash_app.app:main"
 [dependency-groups]
 dev = [
     "pytest>=8.0",
+    "ruff>=0.17.5",
 ]
 
 [build-system]

@@ -30,6 +30,11 @@ def create_app() -> Dash:
     )
     app.layout = shell()
     register_callbacks(app)
+
+    @app.server.get("/healthz")
+    def healthz():
+        return {"status": "ok"}
+
     return app
 
 

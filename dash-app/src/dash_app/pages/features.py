@@ -17,11 +17,31 @@ _DOCS_URL = "https://dash.plotly.com/"
 
 _CARDS = [
     ("Data Explorer", "Explore datasets and inspect records.", "fa-solid fa-database"),
-    ("Analytics Dashboard", "Visualize metrics and discover trends.", "fa-solid fa-chart-line"),
-    ("Data Search", "Search and filter data using configurable criteria.", "fa-solid fa-magnifying-glass"),
-    ("Data Visualization", "Explore data through charts and interactive plots.", "fa-solid fa-chart-pie"),
-    ("Data Processing", "Discover data transformation and processing tools.", "fa-solid fa-microchip"),
-    ("API Explorer", "Inspect available endpoints and data resources.", "fa-solid fa-code"),
+    (
+        "Analytics Dashboard",
+        "Visualize metrics and discover trends.",
+        "fa-solid fa-chart-line",
+    ),
+    (
+        "Data Search",
+        "Search and filter data using configurable criteria.",
+        "fa-solid fa-magnifying-glass",
+    ),
+    (
+        "Data Visualization",
+        "Explore data through charts and interactive plots.",
+        "fa-solid fa-chart-pie",
+    ),
+    (
+        "Data Processing",
+        "Discover data transformation and processing tools.",
+        "fa-solid fa-microchip",
+    ),
+    (
+        "API Explorer",
+        "Inspect available endpoints and data resources.",
+        "fa-solid fa-code",
+    ),
     ("Reports", "Browse summaries and generated reports.", "fa-solid fa-file-lines"),
     ("Settings", "Configure application preferences.", "fa-solid fa-sliders"),
 ]
@@ -42,7 +62,10 @@ def _documentation_button() -> html.A:
 
 def _card_grid() -> html.Div:
     return html.Div(
-        [dashboard_card(title, description, icon=icon) for title, description, icon in _CARDS],
+        [
+            dashboard_card(title, description, icon=icon)
+            for title, description, icon in _CARDS
+        ],
         className="mp-feature-grid",
     )
 

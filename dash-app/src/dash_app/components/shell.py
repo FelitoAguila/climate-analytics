@@ -15,7 +15,9 @@ def shell() -> html.Div:
         className="mp-app",
         children=[
             dcc.Location(id="url", refresh=False),
-            dcc.Store(id="theme-store", storage_type="local", data=config.DEFAULT_THEME),
+            dcc.Store(
+                id="theme-store", storage_type="local", data=config.DEFAULT_THEME
+            ),
             html.Div(id="mp-theme-sink", style={"display": "none"}),
             html.Div(id="mp-scroll-sink", style={"display": "none"}),
             html.Div(id="page-title", style={"display": "none"}),

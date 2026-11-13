@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 import pytest
+
 from dash_app import config
 from dash_app.app import create_app
 from dash_app.data import DataUnavailable

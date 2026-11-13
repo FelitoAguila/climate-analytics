@@ -21,7 +21,9 @@ def nav_links() -> list[object]:
         children = _item_children(item)
         if item.external:
             links.append(
-                html.A(children, href=item.href, target="_blank", className="navbar-item")
+                html.A(
+                    children, href=item.href, target="_blank", className="navbar-item"
+                )
             )
         else:
             links.append(dcc.Link(children, href=item.href, className="navbar-item"))
@@ -34,7 +36,9 @@ def _about_dropdown() -> html.Div:
         children = _item_children(item)
         if item.external:
             items.append(
-                html.A(children, href=item.href, target="_blank", className="navbar-item")
+                html.A(
+                    children, href=item.href, target="_blank", className="navbar-item"
+                )
             )
         else:
             items.append(dcc.Link(children, href=item.href, className="navbar-item"))

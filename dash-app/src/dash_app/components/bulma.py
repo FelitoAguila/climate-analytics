@@ -6,7 +6,8 @@ write raw class strings. Modelled on ``crystal_toolkit.helpers.layouts``.
 
 from __future__ import annotations
 
-from typing import Any, Literal, Sequence
+from collections.abc import Sequence
+from typing import Any, Literal
 
 from dash import dcc, html
 
@@ -26,7 +27,9 @@ BulmaColor = Literal[
 ColorArg = BulmaColor | None
 
 
-def _merge_class(kwargs: dict[str, Any], class_name: str, condition: bool = True) -> None:
+def _merge_class(
+    kwargs: dict[str, Any], class_name: str, condition: bool = True
+) -> None:
     if not condition:
         return
     existing = kwargs.get("className")
@@ -64,13 +67,17 @@ def columns(
     return html.Div(children, **kwargs)
 
 
-def column(children: Any = None, *, size: str | int | None = None, **kwargs) -> html.Div:
+def column(
+    children: Any = None, *, size: str | int | None = None, **kwargs
+) -> html.Div:
     _merge_class(kwargs, "column")
     _merge_class(kwargs, f"is-{size}", size is not None)
     return html.Div(children, **kwargs)
 
 
-def title(text: Any, *, size: int = 1, spaced: bool = False, subtitle: bool = False, **kwargs) -> html.H1:
+def title(
+    text: Any, *, size: int = 1, spaced: bool = False, subtitle: bool = False, **kwargs
+) -> html.H1:
     _merge_class(kwargs, "title" if not subtitle else "subtitle")
     _merge_class(kwargs, f"is-{size}")
     _merge_class(kwargs, "is-spaced", spaced)
@@ -129,14 +136,22 @@ def card_footer_item(children: Any = None, **kwargs) -> html.A:
     return html.A(children, **kwargs)
 
 
-def notification(children: Any = None, *, color: ColorArg = None, light: bool = False, **kwargs) -> html.Div:
+def notification(
+    children: Any = None, *, color: ColorArg = None, light: bool = False, **kwargs
+) -> html.Div:
     _merge_class(kwargs, "notification")
     _merge_class(kwargs, f"is-{color}", color is not None)
     _merge_class(kwargs, "is-light", light)
     return html.Div(children, **kwargs)
 
 
-def message(children: Any = None, *, color: ColorArg = "info", header: str | None = None, **kwargs) -> html.Article:
+def message(
+    children: Any = None,
+    *,
+    color: ColorArg = "info",
+    header: str | None = None,
+    **kwargs,
+) -> html.Article:
     _merge_class(kwargs, "message")
     _merge_class(kwargs, f"is-{color}", color is not None)
     content = []
@@ -146,7 +161,14 @@ def message(children: Any = None, *, color: ColorArg = "info", header: str | Non
     return html.Article(content, **kwargs)
 
 
-def tag(text: Any, *, color: ColorArg = "primary", rounded: bool = False, light: bool = False, **kwargs) -> html.Span:
+def tag(
+    text: Any,
+    *,
+    color: ColorArg = "primary",
+    rounded: bool = False,
+    light: bool = False,
+    **kwargs,
+) -> html.Span:
     _merge_class(kwargs, "tag")
     _merge_class(kwargs, f"is-{color}", color is not None)
     _merge_class(kwargs, "is-rounded", rounded)
@@ -228,7 +250,9 @@ def menu_list(children: Any = None, **kwargs) -> html.Ul:
     return html.Ul(children, **kwargs)
 
 
-def menu_item(children: Any = None, *, active: bool = False, href: str | None = None, **kwargs) -> html.Li:
+def menu_item(
+    children: Any = None, *, active: bool = False, href: str | None = None, **kwargs
+) -> html.Li:
     _merge_class(kwargs, "is-active", active)
     if href is not None:
         return html.Li(dcc.Link(children, href=href), **kwargs)
@@ -239,7 +263,9 @@ def icon(name: str, **kwargs) -> html.Span:
     return html.Span(html.I(className=name), className="icon", **kwargs)
 
 
-def heading(text: Any, *, size: int = 1, subtitle: bool = False, spaced: bool = False, **kwargs) -> Any:
+def heading(
+    text: Any, *, size: int = 1, subtitle: bool = False, spaced: bool = False, **kwargs
+) -> Any:
     tag_name = f"h{min(max(size, 1), 6)}"
     _merge_class(kwargs, "title" if not subtitle else "subtitle")
     _merge_class(kwargs, f"is-{size}")

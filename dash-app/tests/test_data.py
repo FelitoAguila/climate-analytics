@@ -8,10 +8,11 @@ from types import SimpleNamespace
 
 import pandas as pd
 import pytest
+from sqlalchemy.exc import SQLAlchemyError
+
 from dash_app import settings
 from dash_app.data import db, queries
 from dash_app.errors import DataUnavailable
-from sqlalchemy.exc import SQLAlchemyError
 
 
 @pytest.fixture(autouse=True)

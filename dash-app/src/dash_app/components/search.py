@@ -18,7 +18,10 @@ def hero_banner() -> html.Div:
         className="mp-hero-banner",
         children=[
             html.H1(config.APP_NAME, className="title is-2 has-text-white"),
-            html.P(config.APP_DESCRIPTION, className="subtitle is-5 has-text-white mp-hero-subtitle"),
+            html.P(
+                config.APP_DESCRIPTION,
+                className="subtitle is-5 has-text-white mp-hero-subtitle",
+            ),
             b.button(
                 "Explore Features",
                 href=_FEATURES_HREF,
