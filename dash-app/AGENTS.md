@@ -114,9 +114,9 @@ Public query API:
 - The MP-style shell is implemented and tested (`uv run pytest`).
 - The read-only data layer is implemented and tested offline (SQLAlchemy + psycopg3,
   cachetools, lazy engine, query API, error wrapping).
-- Generic template pages still exist: home, features dashboard, browse list, detail, about
-  and 404. Browse/detail still read `data/placeholder.py`; migrate them to the data API next.
-- Branding, navigation and copy are still template placeholders.
+- Pages: home, features dashboard, about and 404. The home page still uses
+  `data/placeholder.py`; migrate it to the data API next.
+- Branding, navigation and copy are still partly template placeholders.
 
 ## Architecture
 
@@ -146,14 +146,11 @@ dash-app/
 │   │   ├── registry.py      # path -> (title, nav_key, layout); dynamic-route matching
 │   │   ├── home.py          # hero + stat cards + feature card grid + sample Plotly chart
 │   │   ├── features.py      # /features: dashboard (sidebar + page header + card grid)
-│   │   ├── list.py          # generic filterable/sortable table (browse)
-│   │   ├── detail.py        # generic detail page, reads id from path
-│   │   ├── about.py         # markdown overview
+│   │   ├── about.py         # markdown overview + author cards
 │   │   └── not_found.py     # 404
 │   ├── callbacks/
 │   │   ├── __init__.py      # register_callbacks(app)
 │   │   ├── navigation.py    # pathname -> render page; mobile menu; document title
-│   │   ├── search.py        # browse table filtering; prefill
 │   │   ├── sidenav.py       # sidebar expand/collapse toggle (clientside)
 │   │   └── theme.py         # light/dark toggle with dcc.Store persistence (clientside)
 │   ├── data/
@@ -210,9 +207,8 @@ Routing mirrors MP: manual `dcc.Location` + callbacks, not Dash Pages. Dynamic
 1. Route rendering (`dcc.Location.pathname` → page content), incl. 404 fallback.
 2. Mobile menu burger toggle (off-canvas navbar drawer).
 3. Document title sync + `#features` smooth-scroll anchor (clientside).
-4. Browse table filtering (text/category/status/sort) + prefill.
-5. Light/dark theme toggle with `dcc.Store`/localStorage persistence (clientside).
-6. Features sidebar expand/collapse toggle (clientside; hover/focus handled in CSS).
+4. Light/dark theme toggle with `dcc.Store`/localStorage persistence (clientside).
+5. Features sidebar expand/collapse toggle (clientside; hover/focus handled in CSS).
 
 ## Decisions
 

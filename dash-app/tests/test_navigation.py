@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import pytest
+from dash_app import config
 from dash_app.app import create_app
-from dash_app.callbacks.search import apply_filters, build_search_href
 from dash_app.data import placeholder
-from dash_app.pages import features, registry
+from dash_app.pages import about, features, registry
 from dash_app.utils import is_active
 
 
@@ -18,9 +18,8 @@ def app():
 def test_normalize():
     assert registry.normalize(None) == "/"
     assert registry.normalize("") == "/"
-    assert registry.normalize("/browse/") == "/browse"
-    assert registry.normalize("/browse?q=test") == "/browse"
     assert registry.normalize("/about/") == "/about"
+    assert registry.normalize("/about?from=home") == "/about"
 
 
 def test_resolve_static_pages():
@@ -29,15 +28,18 @@ def test_resolve_static_pages():
     assert home.nav_key == "/"
     assert home.layout is not None
 
-    browse = registry.resolve("/browse")
-    assert browse.found
-    assert browse.nav_key == "/browse"
+    about_page = registry.resolve("/about")
+    assert about_page.found
+    assert about_page.nav_key == "/about"
+
+    features_page = registry.resolve("/features")
+    assert features_page.found
+    assert features_page.nav_key == "/features"
 
 
-def test_resolve_dynamic_route():
-    resolved = registry.resolve("/browse/record-001")
-    assert resolved.found
-    assert resolved.nav_key == "/browse"
+def test_browse_page_is_removed():
+    assert registry.resolve("/browse").found is False
+    assert registry.resolve("/browse/record-001").found is False
 
 
 def test_resolve_not_found():
@@ -75,38 +77,10 @@ def test_index_serves(app):
 
 def test_is_active():
     assert is_active("/", "/")
-    assert not is_active("/", "/browse")
-    assert is_active("/browse", "/browse")
-    assert is_active("/browse", "/browse/record-001")
-    assert not is_active("/browse", "/about")
+    assert not is_active("/", "/features")
+    assert is_active("/features", "/features")
+    assert not is_active("/features", "/about")
     assert not is_active("https://example.com", "/")
-
-
-def test_apply_filters():
-    frame = placeholder.records()
-    filtered = apply_filters(frame, text="Aurora")
-    assert len(filtered) == 1
-    assert filtered.iloc[0]["name"] == "Aurora"
-
-    by_category = apply_filters(frame, category="Alpha")
-    assert not by_category.empty
-    assert (by_category["category"] == "Alpha").all()
-
-    by_status = apply_filters(frame, status="Active")
-    assert (by_status["status"] == "Active").all()
-
-    ascending = apply_filters(frame, sort_key="score_asc")
-    assert ascending["score"].is_monotonic_increasing
-
-    descending = apply_filters(frame, sort_key="score_desc")
-    assert descending["score"].is_monotonic_decreasing
-
-
-def test_build_search_href():
-    assert build_search_href("Aurora") == "/browse?q=Aurora"
-    assert build_search_href("  spaced term ") == "/browse?q=spaced%20term"
-    assert build_search_href("") is None
-    assert build_search_href(None) is None
 
 
 def _walk(node, classes, ids):
@@ -144,3 +118,49 @@ def test_features_dashboard_layout():
 
 def test_sidenav_callback_registered(app):
     assert any("mp-sidenav" in key for key in app.callback_map)
+
+
+def test_about_menu_has_no_placeholder_links():
+    labels = {item.label for item in config.ABOUT_MENU}
+    hrefs = {item.href for item in config.ABOUT_MENU}
+
+    assert "Documentation" not in labels
+    assert "Contact" not in labels
+    assert config.GITHUB_REPO_URL in hrefs
+    assert "/about#authors" in hrefs
+    assert not any("dash.plotly.com" in href for href in hrefs)
+    assert not any("feedback@example.com" in href for href in hrefs)
+
+
+def test_footer_and_about_menu_share_project_links():
+    about_hrefs = {item.href for item in config.ABOUT_MENU}
+    footer_hrefs = {item.href for item in config.FOOTER_LINKS}
+
+    assert {"/about", "/about#authors", config.GITHUB_REPO_URL} <= about_hrefs
+    assert {"/", "/about", "/about#authors", config.GITHUB_REPO_URL} <= footer_hrefs
+    assert "/browse" not in footer_hrefs
+    assert config.OPEN_METEO_URL in footer_hrefs
+
+
+def test_authors_have_project_links():
+    assert len(config.AUTHORS) == 2
+    for author in config.AUTHORS:
+        labels = {link.label for link in author.links}
+        assert {"GitHub", "LinkedIn", "Website"} <= labels
+        for link in author.links:
+            assert link.external
+            assert link.href.startswith("https://")
+
+
+def test_about_authors_layout():
+    classes: list[str] = []
+    ids: set[str] = set()
+    _walk(about.layout(), classes, ids)
+    payload = str(about.layout().to_plotly_json())
+
+    assert "authors" in ids
+    assert "mp-author-card" in classes
+    assert "mp-author-link" in classes
+    assert classes.count("mp-author-card") == len(config.AUTHORS)
+    for author in config.AUTHORS:
+        assert author.name in payload

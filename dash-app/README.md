@@ -15,7 +15,7 @@ breadcrumbs, footer and a light/dark theme.
 - Manual `dcc.Location` routing with callbacks (supports dynamic `/<section>/<id>`).
 - Reusable, dependency-light Bulma helpers (`components/bulma.py`).
 - Read-only data layer for Neon: SQL queries, pandas results, TTL caching and safe errors.
-- Generic placeholder pages: dashboard, filterable list, detail, about and a 404.
+- Pages: dashboard, features, about and a 404.
 - Navbar navigation (Features link + About dropdown), mobile menu, and a `/features`
   dashboard with a collapsible icon sidebar, page header and feature card grid.
 - Light/dark theme with `localStorage` persistence.
@@ -71,7 +71,7 @@ src/dash_app/
 ├── utils.py          # is_active() helper
 ├── components/       # shell, navbar, sidenav, page header, footer, search, cards, Bulma helpers
 ├── pages/            # page layouts + registry
-├── callbacks/        # navigation, search, sidenav, theme
+├── callbacks/        # navigation, sidenav, theme
 ├── data/             # read-only Neon access (see data/README.md)
 │   ├── __init__.py   # public data API
 │   ├── db.py         # engine, fetch_df(), TTL cache, error wrapping
@@ -117,13 +117,8 @@ tests/
 
 ### Dynamic routes
 
-`/browse/<id>` is served by a `DynamicRoute` in the registry. Its layout receives the
-remaining path segment:
-
-```python
-def layout(record_id: str):
-    ...
-```
+The registry supports `DynamicRoute` for paths such as `/<section>/<id>`. Its layout
+receives the remaining path segment. No dynamic routes are registered at the moment.
 
 ## Customising the look
 

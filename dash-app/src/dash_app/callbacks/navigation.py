@@ -34,15 +34,14 @@ def register(app) -> None:
         return "navbar-menu is-active", "navbar-burger is-active"
 
     app.clientside_callback(
-        """
-        function(title) {
-            if (title) {
-                document.title = title + " · " + %s;
-            }
+        f"""
+        function(title) {{
+            if (title) {{
+                document.title = title + " · " + {config.APP_NAME!r};
+            }}
             return window.dash_clientside.no_update;
-        }
-        """
-        % repr(config.APP_NAME),
+        }}
+        """,
         Output("page-title", "className"),
         Input("page-title", "children"),
     )

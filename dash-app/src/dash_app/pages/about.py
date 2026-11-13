@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dash import dcc, html
 
+from .. import config
 from ..components import bulma as b
 
 _OVERVIEW = """
@@ -55,9 +56,34 @@ The interface is inspired by the [Materials Project](https://materialsproject.or
 ### Project links
 
 - [Source code on GitHub](https://github.com/FelitoAguila/climate-analytics)
-- [Open the city explorer](/browse)
+- [Explore the feature dashboard](/features)
 - [Read the project README](https://github.com/FelitoAguila/climate-analytics#readme)
 """
+
+
+def _author_card(author: config.Author) -> html.Div:
+    links = [
+        html.A(
+            [
+                html.Span(html.I(className=item.icon), className="icon"),
+                html.Span(item.label),
+            ],
+            href=item.href,
+            target="_blank",
+            rel="noopener",
+            className="mp-author-link",
+        )
+        for item in author.links
+    ]
+    return b.card(
+        b.card_content(
+            [
+                b.title(author.name, size=5),
+                html.Div(links, className="mp-author-links"),
+            ]
+        ),
+        className="mp-author-card",
+    )
 
 
 def layout() -> html.Div:
@@ -69,9 +95,12 @@ def layout() -> html.Div:
                 html.Div(
                     [
                         b.title("Authors", size=4, id="authors"),
-                        html.P(
-                            "Climate Analytics was created by Felix Manuel Aguila "
-                            "Alonso and Albert Alain Valdivia Garcia."
+                        b.columns(
+                            [
+                                b.column(_author_card(author))
+                                for author in config.AUTHORS
+                            ],
+                            multiline=True,
                         ),
                     ],
                     className="box",

@@ -1,15 +1,16 @@
 """Page registry: maps URL paths to page layouts.
 
 To add a page, create a module exposing a ``layout()`` function and register it
-here. Dynamic routes (e.g. ``/browse/<id>``) receive the remaining path segment.
+here. Dynamic routes (e.g. ``/section/<id>``) receive the remaining path segment.
 """
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
-from . import about, detail, features, home, list as list_page, not_found
+from . import about, features, home, not_found
 
 
 @dataclass(frozen=True)
@@ -29,20 +30,17 @@ class DynamicRoute:
     def match(self, pathname: str) -> str | None:
         if not pathname.startswith(self.prefix):
             return None
-        remainder = pathname[len(self.prefix):]
+        remainder = pathname[len(self.prefix) :]
         return remainder or None
 
 
 STATIC_PAGES: dict[str, Page] = {
     "/": Page("Dashboard", "/", home.layout),
-    "/browse": Page("Browse", "/browse", list_page.layout),
     "/about": Page("About", "/about", about.layout),
     "/features": Page("Features", "/features", features.layout),
 }
 
-DYNAMIC_ROUTES: list[DynamicRoute] = [
-    DynamicRoute("/browse/", "Record detail", "/browse", detail.layout),
-]
+DYNAMIC_ROUTES: list[DynamicRoute] = []
 
 
 @dataclass(frozen=True)
