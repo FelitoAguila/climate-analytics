@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from dash_template.app import create_app
-from dash_template.callbacks.search import apply_filters, build_search_href
-from dash_template.data import placeholder
-from dash_template.pages import registry
-from dash_template.pages import features
-from dash_template.utils import is_active
+from dash_app.app import create_app
+from dash_app.callbacks.search import apply_filters, build_search_href
+from dash_app.data import placeholder
+from dash_app.pages import registry
+from dash_app.pages import features
+from dash_app.utils import is_active
 
 
 @pytest.fixture(scope="module")

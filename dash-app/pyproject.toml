@@ -1,0 +1,28 @@
+[project]
+name = "dash-app"
+version = "0.1.0"
+description = "Climate analytics web app for exploring historical daily temperatures, styled after the Materials Project website."
+readme = "README.md"
+authors = [
+    { name = "Felix Manuel Aguila Alonso", email = "feloaguila@gmail.com" },
+    { name = "Albert Alain Valdivia Garcia", email = "tcp.albertvaldivia1993@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "dash>=2.17",
+    "plotly>=5.20",
+    "pandas>=2.2",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+dash-app = "dash_app.app:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"

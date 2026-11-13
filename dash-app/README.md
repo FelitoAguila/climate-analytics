@@ -1,4 +1,4 @@
-# dash-template
+# dash-app
 
 A reusable, **content-agnostic** [Plotly Dash](https://dash.plotly.com/) application
 template whose visual design is inspired by the
@@ -27,7 +27,7 @@ edit `config.py`, add a page module, and go.
 
 ```bash
 uv sync
-uv run dash-template        # or: uv run python -m dash_template
+uv run dash-app        # or: uv run python -m dash_app
 ```
 
 Then open <http://localhost:8050>.
@@ -43,7 +43,7 @@ Environment variables (all optional):
 ## Project layout
 
 ```
-src/dash_template/
+src/dash_app/
 ├── app.py            # create_app() factory + entry point
 ├── config.py         # branding, theme tokens, navigation
 ├── utils.py          # is_active() helper
@@ -58,11 +58,11 @@ tests/
 
 ## Adding a page
 
-1. **Create the page module** in `src/dash_template/pages/`, exposing a `layout()`
+1. **Create the page module** in `src/dash_app/pages/`, exposing a `layout()`
    function that returns Dash components:
 
    ```python
-   # src/dash_template/pages/reports.py
+   # src/dash_app/pages/reports.py
    from dash import html
    from ..components import bulma as b
 
@@ -70,7 +70,7 @@ tests/
        return b.section(b.container([b.title("Reports", size=2)]))
    ```
 
-2. **Register it** in `src/dash_template/pages/registry.py`:
+2. **Register it** in `src/dash_app/pages/registry.py`:
 
    ```python
    from . import reports
@@ -81,10 +81,10 @@ tests/
    }
    ```
 
-3. **Add a navigation entry** in `src/dash_template/config.py` (`NAV_LINKS`,
+3. **Add a navigation entry** in `src/dash_app/config.py` (`NAV_LINKS`,
    `ABOUT_MENU`).
 
-4. **Add callbacks** (optional) in `src/dash_template/callbacks/` and register them in
+4. **Add callbacks** (optional) in `src/dash_app/callbacks/` and register them in
    `callbacks/__init__.py`.
 
 ### Dynamic routes
@@ -99,14 +99,14 @@ def layout(record_id: str):
 
 ## Customising the look
 
-- **Branding & nav**: `src/dash_template/config.py`.
-- **Colors, spacing, dark theme**: `src/dash_template/assets/theme.css`
+- **Branding & nav**: `src/dash_app/config.py`.
+- **Colors, spacing, dark theme**: `src/dash_app/assets/theme.css`
   (`--mp-*` CSS variables) plus the `PRIMARY_COLOR` tokens in `config.py`.
-- **Logo**: replace `src/dash_template/assets/logo.svg`.
+- **Logo**: replace `src/dash_app/assets/logo.svg`.
 
 ## Data
 
-All content is placeholder and lives in `src/dash_template/data/placeholder.py`
+All content is placeholder and lives in `src/dash_app/data/placeholder.py`
 (a small pandas DataFrame). Replace it with your own data source; nothing else depends on
 its specifics beyond the browse/detail pages.
 

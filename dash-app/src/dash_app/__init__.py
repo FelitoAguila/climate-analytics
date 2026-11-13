@@ -1,4 +1,4 @@
-"""dash-template: a reusable, content-agnostic Plotly Dash template."""
+"""dash-app: the climate-analytics Plotly Dash web application."""
 
 from __future__ import annotations
 
