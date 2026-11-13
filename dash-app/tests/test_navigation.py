@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+from datetime import date
+from types import SimpleNamespace
+
+import pandas as pd
 import pytest
 from dash_app import config
 from dash_app.app import create_app
-from dash_app.data import placeholder
-from dash_app.pages import about, features, registry
+from dash_app.data import DataUnavailable
+from dash_app.pages import about, features, home, registry
 from dash_app.utils import is_active
 
 
@@ -49,14 +53,33 @@ def test_resolve_not_found():
     assert resolved.layout is not None
 
 
-def test_placeholder_data():
-    frame = placeholder.records()
-    assert not frame.empty
-    assert {"id", "name", "category", "status", "score", "updated"} <= set(
-        frame.columns
+def test_home_overview_uses_database_status(monkeypatch):
+    fake_status = SimpleNamespace(
+        city_count=140,
+        row_count=4_440_945,
+        first_date=date(1940, 1, 1),
+        latest_date=date(2026, 11, 6),
+        cities=pd.DataFrame({"complete": [True] * 140}),
     )
-    assert placeholder.get_record("record-001") is not None
-    assert placeholder.get_record("nope") is None
+    monkeypatch.setattr(home, "data_status", lambda: fake_status)
+
+    payload = str(home.layout().to_plotly_json())
+
+    assert "140" in payload
+    assert "4,440,945" in payload
+    assert "87" in payload
+    assert "1940–2026" in payload
+    assert "6 Nov 2026" in payload
+
+
+def test_home_overview_handles_database_error(monkeypatch):
+    def fail():
+        raise DataUnavailable("unavailable")
+
+    monkeypatch.setattr(home, "data_status", fail)
+
+    payload = str(home.layout().to_plotly_json())
+    assert "Live data unavailable" in payload
 
 
 def test_app_layout_and_callbacks(app):

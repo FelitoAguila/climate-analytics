@@ -11,8 +11,7 @@ src/dash_app/
 └── data/
     ├── __init__.py    # public API re-exports
     ├── db.py          # engine, query execution, cache, SQL error wrapping
-    ├── queries.py     # SQL and DataFrame shaping
-    └── placeholder.py # temporary data used by the template pages
+    └── queries.py     # SQL and DataFrame shaping
 ```
 
 The UI imports from `dash_app.data`, not from `db.py` or `queries.py` directly.

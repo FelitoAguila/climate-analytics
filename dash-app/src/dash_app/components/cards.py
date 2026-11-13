@@ -9,7 +9,9 @@ from dash import html
 from . import bulma as b
 
 
-def stat_card(label: str, value: Any, *, icon: str | None = None, delta: str | None = None) -> html.Div:
+def stat_card(
+    label: str, value: Any, *, icon: str | None = None, delta: str | None = None
+) -> html.Div:
     icon_el = (
         html.Span(html.I(className=icon), className="icon is-large mp-stat-icon")
         if icon
@@ -22,16 +24,21 @@ def stat_card(label: str, value: Any, *, icon: str | None = None, delta: str | N
                     b.column(
                         [
                             html.P(label, className="heading has-text-grey"),
-                            html.P(str(value), className="title is-3 mp-stat-value"),
+                            html.P(str(value), className="title is-4 mp-stat-value"),
                             (
-                                html.P(delta, className="is-size-7 has-text-success")
+                                html.P(
+                                    delta,
+                                    className="is-size-7 has-text-success mp-stat-delta",
+                                )
                                 if delta
                                 else None
                             ),
                         ]
                     ),
                     (
-                        b.column(icon_el, size="is-narrow") if icon_el is not None else None
+                        b.column(icon_el, size="is-narrow")
+                        if icon_el is not None
+                        else None
                     ),
                 ],
                 className="is-vcentered",
@@ -41,13 +48,18 @@ def stat_card(label: str, value: Any, *, icon: str | None = None, delta: str | N
     )
 
 
-def feature_card(title: str, description: str, href: str = "#", *, icon: str | None = None) -> html.Div:
+def feature_card(
+    title: str, description: str, href: str = "#", *, icon: str | None = None
+) -> html.Div:
     return b.card(
         [
             b.card_content(
                 [
                     (
-                        html.Span(html.I(className=icon), className="icon is-large mp-feature-icon")
+                        html.Span(
+                            html.I(className=icon),
+                            className="icon is-large mp-feature-icon",
+                        )
                         if icon
                         else None
                     ),
@@ -61,7 +73,9 @@ def feature_card(title: str, description: str, href: str = "#", *, icon: str | N
     )
 
 
-def dashboard_card(title: str, description: str, *, icon: str | None = None) -> html.Div:
+def dashboard_card(
+    title: str, description: str, *, icon: str | None = None
+) -> html.Div:
     icon_el = (
         html.Span(html.I(className=icon), className="icon mp-dash-icon")
         if icon
@@ -97,4 +111,4 @@ def linked_content_card(title: str, children: Any, href: str) -> html.Div:
 
 
 def stat_grid(cards: list[Any]) -> html.Div:
-    return b.columns([b.column(card) for card in cards], multiline=True)
+    return html.Div(cards, className="mp-stat-grid")

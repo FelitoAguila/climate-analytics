@@ -114,8 +114,8 @@ Public query API:
 - The MP-style shell is implemented and tested (`uv run pytest`).
 - The read-only data layer is implemented and tested offline (SQLAlchemy + psycopg3,
   cachetools, lazy engine, query API, error wrapping).
-- Pages: home, features dashboard, about and 404. The home page still uses
-  `data/placeholder.py`; migrate it to the data API next.
+- Pages: home, features dashboard, about and 404. The home overview reads live database
+  status (cached by the data layer).
 - Branding, navigation and copy are still partly template placeholders.
 
 ## Architecture
@@ -144,7 +144,7 @@ dash-app/
 │   │   └── cards.py         # stat_card, feature_card, dashboard_card, content_card, stat_grid
 │   ├── pages/
 │   │   ├── registry.py      # path -> (title, nav_key, layout); dynamic-route matching
-│   │   ├── home.py          # hero + stat cards + feature card grid + sample Plotly chart
+│   │   ├── home.py          # hero + live database stat cards + feature cards
 │   │   ├── features.py      # /features: dashboard (sidebar + page header + card grid)
 │   │   ├── about.py         # markdown overview + author cards
 │   │   └── not_found.py     # 404
@@ -157,8 +157,7 @@ dash-app/
 │   │   ├── __init__.py      # public read-only data API
 │   │   ├── db.py            # lazy engine, fetch_df(), TTL cache, error wrapping
 │   │   ├── queries.py       # SQL + DataFrame shaping
-│   │   ├── README.md        # data-layer reference
-│   │   └── placeholder.py   # neutral dummy rows; remove after pages migrate
+│   │   └── README.md        # data-layer reference
 │   └── assets/
 │       ├── theme.css        # MP-inspired overrides + dark theme
 │       └── logo.svg
@@ -265,7 +264,7 @@ Next, in rough order:
 - [x] Implement the read-only `data/` layer using `READONLY_DATABASE_URL`.
 - [x] Add TTL caching for expensive aggregates.
 - [x] Harden configuration with pydantic-settings and fail-fast validation.
-- [ ] Replace `data/placeholder.py` usage with real queries for the pages that need data.
+- [x] Replace placeholder data with live queries on the home overview.
 - [ ] Plan the climate feature set in detail with the user. Directions already identified:
       global maps and rankings, and database freshness/status. Per-city browse/detail,
       warming trends, distributions (bells) and city comparison may follow; specifics are

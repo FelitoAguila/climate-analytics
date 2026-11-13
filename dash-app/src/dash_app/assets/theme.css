@@ -220,21 +220,60 @@ body {
 
 /* --------------------------------------------------------------- cards */
 
+.mp-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.mp-stat-card {
+  height: 100%;
+}
+
+.mp-stat-card .card-content {
+  height: 100%;
+}
+
 .mp-stat-card .mp-stat-value {
   margin-bottom: 0.25rem;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  line-height: 1.1;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-stat-delta {
+  min-height: 1rem;
 }
 
 .mp-stat-icon {
   color: var(--mp-primary);
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 2.4rem;
 }
 
 .mp-feature-card {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mp-feature-card .card-content {
+  flex: 1 1 auto;
 }
 
 .mp-feature-icon {
   color: var(--mp-primary);
-  margin-bottom: 0.5rem;
+  width: 3rem;
+  height: 3rem;
+  font-size: 2.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.mp-home-get-started {
+  margin-top: 2rem;
 }
 
 .mp-stat-card,
@@ -679,13 +718,15 @@ html[data-theme="dark"] .Select-control:hover {
 }
 
 @media (max-width: 1023px) {
-  .mp-feature-grid {
+  .mp-feature-grid,
+  .mp-stat-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 767px) {
-  .mp-feature-grid {
+  .mp-feature-grid,
+  .mp-stat-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }

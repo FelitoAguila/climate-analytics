@@ -1,58 +1,74 @@
-"""Home / dashboard placeholder page."""
+"""Home / dashboard page: live database overview and project entry points."""
 
 from __future__ import annotations
 
-import plotly.express as px
-from dash import dcc, html
+from dash import html
 
 from .. import config
 from ..components import bulma as b
 from ..components.cards import feature_card, stat_card, stat_grid
 from ..components.search import hero_banner
-from ..data import placeholder
+from ..data import DataUnavailable, data_status
 
 
-def _sample_figure():
-    frame = placeholder.records()
-    fig = px.bar(
-        frame.groupby("category", as_index=False)["score"].sum(),
-        x="category",
-        y="score",
-        color="category",
-        labels={"score": "Total score", "category": "Category"},
-    )
-    fig.update_layout(
-        margin={"l": 10, "r": 10, "t": 30, "b": 10},
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        showlegend=False,
-        colorway=[config.PRIMARY_COLOR_HEX],
-    )
-    return fig
+def _overview_stats() -> html.Div:
+    try:
+        status = data_status()
+    except DataUnavailable:
+        return b.notification(
+            [
+                b.title("Live data unavailable", size=5),
+                html.P(
+                    "The database summary could not be loaded right now. "
+                    "Please try again shortly."
+                ),
+            ],
+            color="warning",
+            light=True,
+        )
 
+    if status.first_date is None or status.latest_date is None:
+        years_value = "—"
+        years_detail = "No observations"
+        latest_value = "—"
+    else:
+        years_value = status.latest_date.year - status.first_date.year + 1
+        years_detail = f"{status.first_date.year}–{status.latest_date.year}"
+        latest_value = (
+            f"{status.latest_date.day} {status.latest_date.strftime('%b %Y')}"
+        )
 
-def layout() -> html.Div:
-    frame = placeholder.records()
-    stats = stat_grid(
+    return stat_grid(
         [
-            stat_card("Total records", len(frame), icon="fa-solid fa-database"),
             stat_card(
-                "Categories",
-                frame["category"].nunique(),
-                icon="fa-solid fa-layer-group",
+                "Cities",
+                status.city_count,
+                icon="fa-solid fa-city",
+                delta="Complete coverage" if status.cities["complete"].all() else None,
             ),
             stat_card(
-                "Active",
-                int((frame["status"] == "Active").sum()),
-                icon="fa-solid fa-bolt",
+                "Daily records",
+                f"{status.row_count:,}",
+                icon="fa-solid fa-database",
             ),
             stat_card(
-                "Avg. score",
-                round(frame["score"].mean(), 2),
-                icon="fa-solid fa-chart-line",
+                "Years covered",
+                years_value,
+                icon="fa-solid fa-calendar-days",
+                delta=years_detail,
+            ),
+            stat_card(
+                "Latest observation",
+                latest_value,
+                icon="fa-solid fa-clock",
+                delta="ERA5 via Open-Meteo",
             ),
         ]
     )
+
+
+def layout() -> html.Div:
+    stats = _overview_stats()
 
     features = b.columns(
         [
@@ -99,17 +115,8 @@ def layout() -> html.Div:
                     [
                         b.title("Overview", size=3),
                         stats,
-                        b.title("Get started", size=3),
+                        b.title("Get started", size=3, className="mp-home-get-started"),
                         features,
-                        b.box(
-                            [
-                                b.title("Example chart", size=5),
-                                dcc.Graph(
-                                    figure=_sample_figure(),
-                                    config={"displayModeBar": False},
-                                ),
-                            ]
-                        ),
                     ]
                 )
             ),

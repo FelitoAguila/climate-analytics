@@ -76,8 +76,7 @@ src/dash_app/
 │   ├── __init__.py   # public data API
 │   ├── db.py         # engine, fetch_df(), TTL cache, error wrapping
 │   ├── queries.py    # SQL + DataFrame shaping
-│   ├── README.md     # data-layer reference
-│   └── placeholder.py
+│   └── README.md     # data-layer reference
 └── assets/           # theme.css + logo.svg
 tests/
 ├── test_navigation.py
@@ -143,8 +142,6 @@ phoenix = city_daily("phoenix-us", start=date(2020, 1, 1), end=date(2020, 12, 31
 
 The full reference — environment setup, public API, columns, cache TTLs, error handling and
 testing rules — is in [`src/dash_app/data/README.md`](src/dash_app/data/README.md).
-
-The template's placeholder pages still read `data/placeholder.py` until they are migrated.
 
 ## Tests
 
