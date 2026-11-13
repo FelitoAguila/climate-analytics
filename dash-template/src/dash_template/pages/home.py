@@ -1,0 +1,98 @@
+"""Home / dashboard placeholder page."""
+
+from __future__ import annotations
+
+import plotly.express as px
+from dash import dcc, html
+
+from .. import config
+from ..components import bulma as b
+from ..components.cards import feature_card, stat_card, stat_grid
+from ..components.search import hero_banner
+from ..data import placeholder
+
+
+def _sample_figure():
+    frame = placeholder.records()
+    fig = px.bar(
+        frame.groupby("category", as_index=False)["score"].sum(),
+        x="category",
+        y="score",
+        color="category",
+        labels={"score": "Total score", "category": "Category"},
+    )
+    fig.update_layout(
+        margin=dict(l=10, r=10, t=30, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        showlegend=False,
+        colorway=[config.PRIMARY_COLOR_HEX],
+    )
+    return fig
+
+
+def layout() -> html.Div:
+    frame = placeholder.records()
+    stats = stat_grid(
+        [
+            stat_card("Total records", len(frame), icon="fa-solid fa-database"),
+            stat_card("Categories", frame["category"].nunique(), icon="fa-solid fa-layer-group"),
+            stat_card("Active", int((frame["status"] == "Active").sum()), icon="fa-solid fa-bolt"),
+            stat_card("Avg. score", round(frame["score"].mean(), 2), icon="fa-solid fa-chart-line"),
+        ]
+    )
+
+    features = b.columns(
+        [
+            b.column(
+                feature_card(
+                    "Browse records",
+                    "Explore the generic data table with filtering and sorting.",
+                    href="/browse",
+                    icon="fa-solid fa-table-list",
+                )
+            ),
+            b.column(
+                feature_card(
+                    "Detail view",
+                    "A reusable detail layout driven by the URL path.",
+                    href="/browse/record-001",
+                    icon="fa-solid fa-file-lines",
+                )
+            ),
+            b.column(
+                feature_card(
+                    "Documentation",
+                    "Learn how to clone this template and add your own pages.",
+                    href="https://dash.plotly.com/",
+                    icon="fa-solid fa-book",
+                )
+            ),
+        ],
+        multiline=True,
+    )
+
+    return html.Div(
+        [
+            html.Section(
+                className="hero mp-hero",
+                children=[html.Div(className="hero-body", children=[b.container(hero_banner())])],
+            ),
+            b.section(
+                b.container(
+                    [
+                        b.title("Overview", size=3),
+                        stats,
+                        b.title("Get started", size=3),
+                        features,
+                        b.box(
+                            [
+                                b.title("Example chart", size=5),
+                                dcc.Graph(figure=_sample_figure(), config={"displayModeBar": False}),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+        ]
+    )

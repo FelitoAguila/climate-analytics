@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Dash Template logo">
+  <defs>
+    <linearGradient id="mpGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00d1b2"/>
+      <stop offset="100%" stop-color="#1a5276"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#mpGradient)" d="M24 2.5 42.6 13.25v21.5L24 45.5 5.4 34.75v-21.5L24 2.5Z"/>
+  <path fill="#ffffff" d="M24 13.5 33.3 19v10L24 34.5 14.7 29V19L24 13.5Z" opacity="0.18"/>
+  <circle cx="24" cy="24" r="6.5" fill="#ffffff"/>
+  <circle cx="24" cy="12.2" r="2.6" fill="#ffffff"/>
+  <circle cx="24" cy="35.8" r="2.6" fill="#ffffff"/>
+  <circle cx="34.2" cy="18.1" r="2.6" fill="#ffffff"/>
+  <circle cx="13.8" cy="29.9" r="2.6" fill="#ffffff"/>
+  <circle cx="34.2" cy="29.9" r="2.6" fill="#ffffff"/>
+  <circle cx="13.8" cy="18.1" r="2.6" fill="#ffffff"/>
+</svg>
