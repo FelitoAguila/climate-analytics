@@ -16,7 +16,7 @@ APP_DESCRIPTION = (
     "look and feel of the Materials Project website."
 )
 APP_AUTHOR = "Dash Template"
-APP_COPYRIGHT = "Dash Template"
+APP_COPYRIGHT = "Climate Analytics"
 APP_LICENSE = "MIT"
 
 PRIMARY_COLOR = "hsl(171, 100%, 41%)"
@@ -47,8 +47,12 @@ ABOUT_MENU: list[NavItem] = [
     NavItem("About", "/about", "fa-solid fa-circle-info"),
     NavItem("Authors", "/about#authors", "fa-solid fa-users"),
     NavItem("GitHub", "https://github.com/", "fa-brands fa-github", external=True),
-    NavItem("Documentation", "https://dash.plotly.com/", "fa-solid fa-book", external=True),
-    NavItem("Contact", "mailto:feedback@example.com", "fa-solid fa-envelope", external=True),
+    NavItem(
+        "Documentation", "https://dash.plotly.com/", "fa-solid fa-book", external=True
+    ),
+    NavItem(
+        "Contact", "mailto:feedback@example.com", "fa-solid fa-envelope", external=True
+    ),
 ]
 
 
@@ -72,8 +76,18 @@ DASHBOARD_NAV: list[list[SidebarItem]] = [
     [SidebarItem("Settings", "fa-solid fa-sliders")],
 ]
 
-FOOTER_LINKS: list[tuple[str, str]] = [
-    ("Documentation", "https://dash.plotly.com/"),
-    ("GitHub", "https://github.com/"),
-    ("Contact", "mailto:feedback@example.com"),
+FOOTER_TITLE = APP_COPYRIGHT
+FOOTER_LINKS: list[NavItem] = [
+    NavItem("Explore cities", "/browse"),
+    NavItem("About", "/about"),
+    NavItem(
+        "GitHub",
+        "https://github.com/FelitoAguila/climate-analytics",
+        external=True,
+    ),
+    NavItem(
+        "Open-Meteo data",
+        "https://open-meteo.com/en/docs/historical-weather-api",
+        external=True,
+    ),
 ]

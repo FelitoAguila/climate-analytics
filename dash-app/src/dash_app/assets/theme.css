@@ -6,6 +6,7 @@
   --mp-border: #e6e9ee;
   --mp-primary: hsl(171, 100%, 41%);
   --mp-primary-dark: hsl(171, 100%, 32%);
+  --mp-link: var(--mp-primary-dark);
   --mp-accent: #1a5276;
   --mp-nav-hover-text: #7a8499;
   --mp-nav-hover-underline: #0f51b9;
@@ -20,6 +21,7 @@ html[data-theme="dark"] {
   --mp-muted: #98a1ae;
   --mp-border: #2b303a;
   --mp-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  --mp-link: var(--mp-primary);
 }
 
 body {
@@ -35,6 +37,27 @@ body {
 .content,
 .heading {
   color: var(--mp-text);
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6,
+.content strong {
+  color: var(--mp-text);
+}
+
+.content a,
+.content a:hover,
+.breadcrumb a,
+.mp-table-link {
+  color: var(--mp-link);
+}
+
+.breadcrumb li.is-active a {
+  color: var(--mp-muted);
 }
 
 /* ---------------------------------------------------------------- navbar */
