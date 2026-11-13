@@ -23,7 +23,7 @@ def register(app) -> None:
 
     app.clientside_callback(
         """
-        function(theme) {
+        function(theme, pathname) {
             const current = theme || "light";
             document.documentElement.setAttribute("data-theme", current);
             return current;
@@ -31,6 +31,7 @@ def register(app) -> None:
         """,
         Output("mp-theme-sink", "children"),
         Input("theme-store", "data"),
+        Input("url", "pathname"),
     )
 
     app.clientside_callback(
