@@ -28,20 +28,20 @@ climate-analytics/
 │   ├── 03_download.ipynb
 │   ├── 04_annual_stats.ipynb
 │   └── 05_bells.ipynb
-└── packages/                 # uv workspace
-    ├── pipelines/            # getting the data
-    │   └── src/pipelines/
-    │       ├── open_meteo.py     # API client and call-cost formula
-    │       ├── cities.py         # city selection (Natural Earth)
-    │       ├── download.py       # resumable download into SQLite, import/export
-    │       ├── neon.py           # loads the shared data into Neon (PostgreSQL)
-    │       └── update.py         # adds the newest days to Neon
-    ├── analysis/             # analysing it
-    │   └── src/analysis/
-    │       ├── stats.py          # annual statistics, anomalies and trends
-    │       ├── bells.py          # distribution curves (kernel density, days per °C)
-    │       └── plots.py          # charts
-    └── dash_app/             # web app (not started yet)
+├── packages/                 # uv workspace
+│   ├── pipelines/            # getting the data
+│   │   └── src/pipelines/
+│   │       ├── open_meteo.py     # API client and call-cost formula
+│   │       ├── cities.py         # city selection (Natural Earth)
+│   │       ├── download.py       # resumable download into SQLite, import/export
+│   │       ├── neon.py           # loads the shared data into Neon (PostgreSQL)
+│   │       └── update.py         # adds the newest days to Neon
+│   └── analysis/             # analysing it
+│       └── src/analysis/
+│           ├── stats.py          # annual statistics, anomalies and trends
+│           ├── bells.py          # distribution curves (kernel density, days per °C)
+│           └── plots.py          # charts
+└── dash-app/                 # web app (standalone uv project)
 ```
 
 The packages hold the reusable code, with tests; the notebooks explain each step and run it.

@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: climate-analytics
+    runtime: python
+    plan: free
+    rootDir: dash-app
+    buildCommand: uv sync --frozen --no-dev
+    startCommand: >-
+      uv run --frozen --no-dev gunicorn
+      --bind 0.0.0.0:$PORT
+      --workers 1
+      --threads 4
+      --timeout 120
+      --access-logfile -
+      dash_app.app:server
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: READONLY_DATABASE_URL
+        sync: false
+      - key: DASH_DEBUG
+        value: "false"
+      - key: UV_VERSION
+        value: "0.13.6"
