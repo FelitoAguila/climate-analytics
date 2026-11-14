@@ -116,9 +116,10 @@ Public query API:
 - The MP-style shell is implemented and tested (`uv run pytest`).
 - The read-only data layer is implemented and tested offline (SQLAlchemy + psycopg3,
   cachetools, lazy engine, query API, error wrapping).
-- Pages: home, features dashboard, data explorer, about and 404. The home overview reads
-  live database status (cached by the data layer); the data explorer documents both tables
-  and previews bounded records.
+- Pages: home, features dashboard, data explorer, city map, about and 404. The home
+  overview reads live database status (cached by the data layer); the data explorer
+  documents both tables and previews bounded records; the city map plots every city with
+  Plotly `Scattergeo`.
 - Branding, navigation and copy are still partly template placeholders.
 
 ## Architecture
@@ -145,18 +146,21 @@ dash-app/
 │   │   ├── footer.py
 │   │   ├── search.py        # hero_banner() (hero section without search bar)
 │   │   ├── tables.py        # Bulma data tables (scrollable, striped)
+│   │   ├── maps.py          # Plotly Scattergeo city map + light/dark palette
 │   │   └── cards.py         # stat_card, feature_card, dashboard_card, content_card, stat_grid
 │   ├── pages/
 │   │   ├── registry.py      # path -> (title, nav_key, layout); dynamic-route matching
 │   │   ├── home.py          # hero + live database stat cards + feature cards
 │   │   ├── features.py      # /features: dashboard (sidebar + page header + card grid)
 │   │   ├── explorer.py      # /explorer: table documentation + bounded record previews
+│   │   ├── city_map.py      # /map: interactive Scattergeo map of every city
 │   │   ├── about.py         # markdown overview + author cards
 │   │   └── not_found.py     # 404
 │   ├── callbacks/
 │   │   ├── __init__.py      # register_callbacks(app)
 │   │   ├── navigation.py    # pathname -> render page; mobile menu; document title
 │   │   ├── explorer.py      # city/date/limit -> bounded daily preview table
+│   │   ├── city_map.py      # theme-store -> patch map geo colours
 │   │   ├── sidenav.py       # sidebar expand/collapse toggle (clientside)
 │   │   └── theme.py         # light/dark toggle with dcc.Store persistence (clientside)
 │   ├── data/
@@ -274,6 +278,7 @@ Next, in rough order:
 - [x] Harden configuration with pydantic-settings and fail-fast validation.
 - [x] Replace placeholder data with live queries on the home overview.
 - [x] Build the Data Explorer: table/column documentation and bounded record previews.
+- [x] Build the City Map: all cities on a theme-aware, interactive Plotly map.
 - [ ] Plan the climate feature set in detail with the user. Directions already identified:
       global maps and rankings, and database freshness/status. Per-city browse/detail,
       warming trends, distributions (bells) and city comparison may follow; specifics are

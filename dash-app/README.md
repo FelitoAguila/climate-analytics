@@ -17,7 +17,9 @@ breadcrumbs, footer and a light/dark theme.
 - Read-only data layer for Neon: SQL queries, pandas results, TTL caching and safe errors.
 - Data Explorer at `/explorer`: table documentation, column reference and bounded record
   previews for `cities` and `daily`.
-- Pages: dashboard, features, data explorer, about and a 404.
+- City Map at `/map`: every city on an interactive Plotly world map, colour-coded by
+  continent, with uniform markers and light/dark map styling.
+- Pages: dashboard, features, data explorer, city map, about and a 404.
 - Navbar navigation (Features link + About dropdown), mobile menu, and a `/features`
   dashboard with a collapsible icon sidebar, page header and feature card grid.
 - Light/dark theme with `localStorage` persistence.
@@ -132,9 +134,9 @@ src/dash_app/
 ├── errors.py         # DataLayerError, ConfigurationError, DataUnavailable
 ├── config.py         # branding, theme tokens, navigation
 ├── utils.py          # is_active() helper
-├── components/       # shell, navbar, sidenav, page header, footer, search, cards, tables, Bulma helpers
-├── pages/            # page layouts (incl. explorer) + registry
-├── callbacks/        # navigation, sidenav, theme, explorer
+├── components/       # shell, navbar, sidenav, page header, footer, search, cards, tables, maps, Bulma helpers
+├── pages/            # page layouts (incl. explorer and city map) + registry
+├── callbacks/        # navigation, sidenav, theme, explorer, city map
 ├── data/             # read-only Neon access (see data/README.md)
 │   ├── __init__.py   # public data API
 │   ├── db.py         # engine, fetch_df(), TTL cache, error wrapping
@@ -144,6 +146,7 @@ src/dash_app/
 └── assets/           # theme.css + logo.svg
 tests/
 ├── test_navigation.py
+├── test_map.py
 ├── test_data.py
 └── test_settings.py
 ```

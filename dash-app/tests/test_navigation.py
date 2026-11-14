@@ -46,6 +46,10 @@ def test_resolve_static_pages():
     assert explorer_page.found
     assert explorer_page.nav_key == "/explorer"
 
+    map_page = registry.resolve("/map")
+    assert map_page.found
+    assert map_page.nav_key == "/map"
+
 
 def test_browse_page_is_removed():
     assert registry.resolve("/browse").found is False
@@ -143,7 +147,10 @@ def test_features_dashboard_layout():
     assert "mp-sidenav" in classes and "mp-sidenav" in ids
     assert "mp-sidenav-toggle" in ids
     assert classes.count("mp-dash-card") == 2
-    assert "/explorer" in str(features.layout().to_plotly_json())
+    payload = str(features.layout().to_plotly_json())
+    assert "/explorer" in payload
+    assert "/map" in payload
+    assert "Analytics Dashboard" in payload
 
 
 def test_shell_has_page_loading(app):
@@ -244,6 +251,10 @@ def test_sidenav_callback_registered(app):
 
 def test_explorer_callback_registered(app):
     assert any("explorer-daily-table" in key for key in app.callback_map)
+
+
+def test_map_callback_registered(app):
+    assert any("city-map.figure" in key for key in app.callback_map)
 
 
 def test_explorer_preview_builder(monkeypatch):

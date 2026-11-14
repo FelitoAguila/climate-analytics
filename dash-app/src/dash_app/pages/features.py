@@ -26,7 +26,7 @@ _CARDS = [
         "Analytics Dashboard",
         "Visualize metrics and discover trends.",
         "fa-solid fa-chart-line",
-        None,
+        "/map",
     ),
 ]
 
