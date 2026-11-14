@@ -130,10 +130,14 @@ repository secrets (Settings → Secrets and variables → Actions):
 | `READONLY_DATABASE_URL` | Becomes the Airflow connection `neon_reader` (`AIRFLOW_CONN_NEON_READER`) |
 
 Run it by hand with **Actions → Airflow daily update → Run workflow** (`max_days_behind` can be
-changed there; 1 tests a failure). A failed run is marked in red and GitHub sends an email. There is
-no Airflow web panel in production: each run's log stays in the Actions tab. GitHub may start the
-scheduled run some minutes late, and it pauses scheduled workflows after 60 days without activity in
-the repository (re-enable them in the Actions tab).
+changed there; 1 tests a failure). There is no Airflow web panel in production: each run's log stays
+in the Actions tab. GitHub may start the scheduled run some minutes late, and it pauses scheduled
+workflows after 60 days without activity in the repository (re-enable them in the Actions tab).
+
+**When it fails**, the run is marked in red and its last step opens an issue, **"Daily update
+failed"**, that mentions both maintainers, so the alert reaches them by email. While that issue is open,
+new failures add a comment to it; close it once the problem is solved. A run that does not start at all
+(for example, a paused workflow) sends no alert.
 
 #### On your computer: to learn and develop
 
