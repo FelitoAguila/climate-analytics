@@ -1,7 +1,7 @@
 # Every day, GitHub starts a clean machine, installs the project and Airflow, and runs the DAG
 # `neon_daily_update` once (`airflow dags test`): the update and its three quality checks.
 # GitHub's cron plays the role of Airflow's scheduler. If anything fails, the run is marked in red
-# and GitHub sends an email.
+# and an issue mentions both maintainers, so that the alert reaches them by email.
 name: Airflow daily update
 
 on:
@@ -15,7 +15,8 @@ on:
         default: 10
 
 permissions:
-  contents: read # it only needs to read the code
+  contents: read # it reads the code
+  issues: write # and opens an issue when it fails
 
 concurrency:
   group: neon-daily-update # never two runs at the same time
@@ -28,7 +29,7 @@ env:
 jobs:
   update:
     runs-on: ubuntu-latest
-    # A normal run takes about 10 minutes; with retries (10 minutes each) it can take ~30
+    # A normal run takes about 5 minutes; with retries (10 minutes each) it can take ~25
     timeout-minutes: 45
     steps:
       - name: Get the code
@@ -52,6 +53,8 @@ jobs:
           echo "$PWD/.venv-airflow/bin" >> "$GITHUB_PATH"
 
       - name: Run the DAG (update + quality checks)
+        # Shorter than the job's limit: a step that runs out of time fails, and the next step runs
+        timeout-minutes: 40
         env:
           # A new, empty Airflow on every run; the machine is deleted at the end
           AIRFLOW_HOME: ${{ runner.temp }}/airflow
@@ -68,4 +71,29 @@ jobs:
             airflow dags test neon_daily_update --conf "{\"max_days_behind\": $MAX_DAYS_BEHIND}"
           else
             airflow dags test neon_daily_update
+          fi
+
+      # Only when a step above failed. While an alert is open, new failures add a comment to it
+      # instead of opening another issue; closing it starts again.
+      - name: Open an issue (or comment on the open one) if the run failed
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }} # works even if "Get the code" failed
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          title="Daily update failed"
+          body="The run of $(date -u +%F) ($EVENT) failed: $RUN_URL
+
+          Open the step \"Run the DAG\" and search for \"FAILED\", \"Record:\" or \"Error\".
+          Close this issue when it is solved.
+
+          @tcpalbertvaldivia1993-lang @FelitoAguila"
+          number=$(gh issue list --state open --search "\"$title\" in:title" \
+            --json number --jq '.[0].number // empty')
+          if [[ -n "$number" ]]; then
+            gh issue comment "$number" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
           fi
