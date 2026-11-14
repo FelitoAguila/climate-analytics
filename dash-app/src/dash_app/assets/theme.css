@@ -735,6 +735,24 @@ html[data-theme="dark"] .Select-control:hover {
   color: inherit;
 }
 
+/* -------------------------------------------------------------- city map */
+
+.mp-map-intro {
+  margin-top: 1rem;
+}
+
+.mp-map-card {
+  margin-top: 1.5rem;
+}
+
+.mp-map-card .card-content {
+  padding: 1rem;
+}
+
+.mp-map-hint {
+  margin-top: 0.75rem;
+}
+
 /* ------------------------------------------------------------ data explorer */
 
 .mp-page-loading {
