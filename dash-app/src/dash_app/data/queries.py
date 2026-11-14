@@ -21,6 +21,9 @@ DAILY_CACHE_SECONDS = 600
 ANNUAL_CACHE_SECONDS = 1_800
 STATUS_CACHE_SECONDS = 300
 
+PREVIEW_ROWS = 25
+MAX_PREVIEW_ROWS = 100
+
 CITY_COLUMNS = [
     "id",
     "name",
@@ -183,6 +186,33 @@ def city_daily(
     )
     frame = fetch_df(sql, params, parse_dates=["date"])
     return _prepare_daily(frame)
+
+
+@ttl_cache(DAILY_CACHE_SECONDS, maxsize=128)
+def city_daily_preview(
+    city_id: str,
+    start: date | None = None,
+    end: date | None = None,
+    limit: int = PREVIEW_ROWS,
+) -> pd.DataFrame:
+    """A bounded, chronological sample of one city's most recent daily rows."""
+    limit = max(1, min(int(limit), MAX_PREVIEW_ROWS))
+    clauses = ["city_id = :city_id"]
+    params: dict[str, Any] = {"city_id": city_id, "limit": limit}
+    if start is not None:
+        clauses.append("date >= :start")
+        params["start"] = start
+    if end is not None:
+        clauses.append("date <= :end")
+        params["end"] = end
+
+    sql = (
+        f"SELECT {', '.join(_DAILY_COLUMNS)} FROM daily "
+        f"WHERE {' AND '.join(clauses)} ORDER BY date DESC LIMIT :limit"
+    )
+    frame = fetch_df(sql, params, parse_dates=["date"])
+    prepared = _prepare_daily(frame)
+    return prepared.sort_values("date").reset_index(drop=True)
 
 
 @ttl_cache(ANNUAL_CACHE_SECONDS, maxsize=256)

@@ -339,7 +339,15 @@ body {
 }
 
 .table th {
-  color: var(--mp-muted);
+  color: var(--mp-text);
+  background-color: transparent;
+  border-color: var(--mp-border);
+}
+
+.table thead th,
+.table thead td {
+  color: var(--mp-text);
+  background-color: transparent;
   border-color: var(--mp-border);
 }
 
@@ -352,8 +360,8 @@ body {
   background: rgba(127, 140, 160, 0.06);
 }
 
-.table.is-hoverable tbody tr:hover {
-  background: rgba(0, 209, 178, 0.08);
+.table.is-hoverable tbody tr:not(.is-selected):hover {
+  background-color: rgba(0, 209, 178, 0.12);
 }
 
 .mp-table-link {
@@ -715,6 +723,111 @@ html[data-theme="dark"] .Select-control:hover {
   font-size: 0.9rem;
   line-height: 1.45;
   color: var(--mp-muted);
+}
+
+.mp-dash-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.mp-dash-card-link:hover {
+  color: inherit;
+}
+
+/* ------------------------------------------------------------ data explorer */
+
+.mp-page-loading {
+  min-height: 30vh;
+}
+
+.mp-explorer-intro {
+  margin-top: 1.25rem;
+}
+
+.mp-explorer-tabs {
+  margin-top: 1.5rem;
+}
+
+.mp-explorer-tabs-nav {
+  border-bottom: 1px solid var(--mp-border);
+  background: transparent;
+}
+
+.mp-explorer-tab {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  color: var(--mp-muted) !important;
+  font-weight: 600;
+  padding: 0.75rem 1.25rem !important;
+  cursor: pointer;
+}
+
+.mp-explorer-tab.is-active {
+  color: var(--mp-primary-dark) !important;
+  border-bottom-color: var(--mp-primary) !important;
+}
+
+.mp-explorer-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-top: 1.25rem;
+}
+
+.mp-explorer-stack .card {
+  background: var(--mp-surface);
+}
+
+.mp-table-wrap {
+  margin-top: 0.75rem;
+  border: 1px solid var(--mp-border);
+  border-radius: 6px;
+}
+
+.mp-explorer .Select-control {
+  background: var(--mp-surface);
+  border-color: var(--mp-border);
+  color: var(--mp-text);
+}
+
+.mp-explorer .Select-menu-outer {
+  background: var(--mp-surface);
+  border-color: var(--mp-border);
+}
+
+.mp-explorer .Select-value-label,
+.mp-explorer .Select-placeholder,
+.mp-explorer .Select-input > input {
+  color: var(--mp-text) !important;
+}
+
+.mp-explorer .Select-option {
+  background: var(--mp-surface);
+  color: var(--mp-text);
+}
+
+.mp-explorer .Select-option.is-focused {
+  background: rgba(0, 209, 178, 0.12);
+}
+
+.mp-explorer .Select-option.is-selected {
+  background: rgba(0, 209, 178, 0.2);
+}
+
+.mp-explorer .Select-arrow {
+  border-top-color: var(--mp-muted);
+}
+
+html[data-theme="dark"] .mp-explorer .input {
+  background-color: var(--mp-surface);
+  border-color: var(--mp-border);
+  color: var(--mp-text);
+}
+
+html[data-theme="dark"] .mp-explorer .input[type="date"] {
+  color-scheme: dark;
 }
 
 @media (max-width: 1023px) {

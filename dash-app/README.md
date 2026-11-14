@@ -15,7 +15,9 @@ breadcrumbs, footer and a light/dark theme.
 - Manual `dcc.Location` routing with callbacks (supports dynamic `/<section>/<id>`).
 - Reusable, dependency-light Bulma helpers (`components/bulma.py`).
 - Read-only data layer for Neon: SQL queries, pandas results, TTL caching and safe errors.
-- Pages: dashboard, features, about and a 404.
+- Data Explorer at `/explorer`: table documentation, column reference and bounded record
+  previews for `cities` and `daily`.
+- Pages: dashboard, features, data explorer, about and a 404.
 - Navbar navigation (Features link + About dropdown), mobile menu, and a `/features`
   dashboard with a collapsible icon sidebar, page header and feature card grid.
 - Light/dark theme with `localStorage` persistence.
@@ -130,13 +132,14 @@ src/dash_app/
 ├── errors.py         # DataLayerError, ConfigurationError, DataUnavailable
 ├── config.py         # branding, theme tokens, navigation
 ├── utils.py          # is_active() helper
-├── components/       # shell, navbar, sidenav, page header, footer, search, cards, Bulma helpers
-├── pages/            # page layouts + registry
-├── callbacks/        # navigation, sidenav, theme
+├── components/       # shell, navbar, sidenav, page header, footer, search, cards, tables, Bulma helpers
+├── pages/            # page layouts (incl. explorer) + registry
+├── callbacks/        # navigation, sidenav, theme, explorer
 ├── data/             # read-only Neon access (see data/README.md)
 │   ├── __init__.py   # public data API
 │   ├── db.py         # engine, fetch_df(), TTL cache, error wrapping
 │   ├── queries.py    # SQL + DataFrame shaping
+│   ├── schema.py     # static table and column documentation
 │   └── README.md     # data-layer reference
 └── assets/           # theme.css + logo.svg
 tests/

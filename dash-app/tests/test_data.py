@@ -12,6 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from dash_app import settings
 from dash_app.data import db, queries
+from dash_app.data.schema import SCHEMAS
 from dash_app.errors import DataUnavailable
 
 
@@ -200,6 +201,76 @@ def test_city_daily_parameters_and_dates(monkeypatch):
     }
     assert captured["parse_dates"] == ["date"]
     assert str(frame["date"].dtype).startswith("datetime64")
+
+
+def test_city_daily_preview_is_bounded_and_sorted(monkeypatch):
+    captured = {}
+
+    def fake_fetch(sql, params=None, *, parse_dates=None):
+        captured["sql"] = sql
+        captured["params"] = params
+        captured["parse_dates"] = parse_dates
+        return pd.DataFrame(
+            {
+                "city_id": ["phoenix-us"] * 3,
+                "date": ["2020-01-03", "2020-01-02", "2020-01-01"],
+                "t_mean": [17.0, 16.0, 15.0],
+                "t_max": [24.0, 23.0, 22.0],
+                "t_min": [10.0, 9.0, 8.0],
+            }
+        )
+
+    monkeypatch.setattr(queries, "fetch_df", fake_fetch)
+    frame = queries.city_daily_preview(
+        "phoenix-us",
+        start=date(2020, 1, 1),
+        end=date(2020, 12, 31),
+        limit=500,
+    )
+
+    assert "ORDER BY date DESC" in captured["sql"]
+    assert "LIMIT :limit" in captured["sql"]
+    assert captured["params"] == {
+        "city_id": "phoenix-us",
+        "start": date(2020, 1, 1),
+        "end": date(2020, 12, 31),
+        "limit": queries.MAX_PREVIEW_ROWS,
+    }
+    assert captured["parse_dates"] == ["date"]
+    assert frame["date"].is_monotonic_increasing
+    assert frame["date"].dt.strftime("%Y-%m-%d").tolist() == [
+        "2020-01-01",
+        "2020-01-02",
+        "2020-01-03",
+    ]
+
+
+def test_city_daily_preview_uses_default_limit(monkeypatch):
+    captured = {}
+
+    def fake_fetch(sql, params=None, *, parse_dates=None):
+        captured["params"] = params
+        return pd.DataFrame(
+            {
+                "city_id": ["phoenix-us"],
+                "date": ["2020-01-01"],
+                "t_mean": [15.0],
+                "t_max": [22.0],
+                "t_min": [8.0],
+            }
+        )
+
+    monkeypatch.setattr(queries, "fetch_df", fake_fetch)
+    queries.city_daily_preview("phoenix-us")
+
+    assert captured["params"]["limit"] == queries.PREVIEW_ROWS
+
+
+def test_schema_metadata_matches_query_columns():
+    assert [column.name for column in SCHEMAS["cities"].columns] == queries.CITY_COLUMNS
+    assert [
+        column.name for column in SCHEMAS["daily"].columns
+    ] == queries._DAILY_COLUMNS
 
 
 def test_city_annual_stats_computes_anomaly(monkeypatch):

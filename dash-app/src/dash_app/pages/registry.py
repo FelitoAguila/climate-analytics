@@ -10,7 +10,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from . import about, features, home, not_found
+from . import about, explorer, features, home, not_found
 
 
 @dataclass(frozen=True)
@@ -38,6 +38,7 @@ STATIC_PAGES: dict[str, Page] = {
     "/": Page("Dashboard", "/", home.layout),
     "/about": Page("About", "/about", about.layout),
     "/features": Page("Features", "/features", features.layout),
+    "/explorer": Page("Data Explorer", "/explorer", explorer.layout),
 }
 
 DYNAMIC_ROUTES: list[DynamicRoute] = []

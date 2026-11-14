@@ -11,7 +11,8 @@ src/dash_app/
 └── data/
     ├── __init__.py    # public API re-exports
     ├── db.py          # engine, query execution, cache, SQL error wrapping
-    └── queries.py     # SQL and DataFrame shaping
+    ├── queries.py     # SQL and DataFrame shaping
+    └── schema.py      # static metadata for the cities and daily tables
 ```
 
 The UI imports from `dash_app.data`, not from `db.py` or `queries.py` directly.
@@ -69,6 +70,7 @@ environment variables work on any platform that follows the 12-factor pattern.
 from dash_app.data import (
     city_annual_stats,
     city_daily,
+    city_daily_preview,
     city_summaries,
     data_status,
     get_city,
@@ -81,12 +83,14 @@ from dash_app.data import (
 | `list_cities()` | All cities, ordered by `download_order` |
 | `get_city(city_id)` | One city as a `dict`, or `None` |
 | `city_daily(city_id, start=None, end=None)` | Daily `t_mean`, `t_max`, `t_min` |
+| `city_daily_preview(city_id, start=None, end=None, limit=25)` | Bounded daily preview, sorted oldest to newest (max 100 rows) |
 | `city_annual_stats(city_id)` | Annual means, percentiles and anomalies |
 | `city_summaries()` | One row per city with warming metrics |
 | `data_status()` | `DatasetStatus` with coverage and freshness |
 
 `city_daily` defaults to the full series, so use a date range when a page needs only part
-of it.
+of it. `city_daily_preview` is intended for UI previews: it always applies a `LIMIT`, clamps
+the requested size to 100 rows, and returns the newest rows in chronological order.
 
 ### Columns and types
 
@@ -158,6 +162,7 @@ Expensive results are cached with `cachetools.TTLCache` through `data.db.ttl_cac
 | --- | --- |
 | Cities | 1 hour |
 | Daily series per city | 10 minutes |
+| Daily preview per city | 10 minutes |
 | Annual statistics and summaries | 30 minutes |
 | Data status | 5 minutes |
 

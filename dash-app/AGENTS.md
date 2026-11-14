@@ -90,6 +90,7 @@ The read-only data layer is implemented under `src/dash_app/data/`; see
 - `data/db.py` owns the lazy SQLAlchemy engine, connection pool, `fetch_df()`, the
   `cachetools` TTL cache and SQL error wrapping.
 - `data/queries.py` owns all SQL and DataFrame shaping.
+- `data/schema.py` holds static table/column metadata used by the Data Explorer.
 - `data/__init__.py` is the public API; pages and callbacks import from `dash_app.data`.
 - Sessions are read-only (`default_transaction_read_only=on`), with a configurable
   statement timeout (default 15 s).
@@ -105,6 +106,7 @@ Public query API:
 | `list_cities()` | All city metadata in download order |
 | `get_city(city_id)` | One city or `None` |
 | `city_daily(city_id, start=None, end=None)` | Daily temperatures |
+| `city_daily_preview(city_id, start=None, end=None, limit=25)` | Bounded, chronological daily preview (max 100 rows) |
 | `city_annual_stats(city_id)` | Annual means, percentiles and anomalies |
 | `city_summaries()` | Per-city warming metrics |
 | `data_status()` | Coverage and freshness (`DatasetStatus`) |
@@ -114,8 +116,9 @@ Public query API:
 - The MP-style shell is implemented and tested (`uv run pytest`).
 - The read-only data layer is implemented and tested offline (SQLAlchemy + psycopg3,
   cachetools, lazy engine, query API, error wrapping).
-- Pages: home, features dashboard, about and 404. The home overview reads live database
-  status (cached by the data layer).
+- Pages: home, features dashboard, data explorer, about and 404. The home overview reads
+  live database status (cached by the data layer); the data explorer documents both tables
+  and previews bounded records.
 - Branding, navigation and copy are still partly template placeholders.
 
 ## Architecture
@@ -141,29 +144,34 @@ dash-app/
 │   │   ├── page_header.py   # breadcrumb + icon/title/action row
 │   │   ├── footer.py
 │   │   ├── search.py        # hero_banner() (hero section without search bar)
+│   │   ├── tables.py        # Bulma data tables (scrollable, striped)
 │   │   └── cards.py         # stat_card, feature_card, dashboard_card, content_card, stat_grid
 │   ├── pages/
 │   │   ├── registry.py      # path -> (title, nav_key, layout); dynamic-route matching
 │   │   ├── home.py          # hero + live database stat cards + feature cards
 │   │   ├── features.py      # /features: dashboard (sidebar + page header + card grid)
+│   │   ├── explorer.py      # /explorer: table documentation + bounded record previews
 │   │   ├── about.py         # markdown overview + author cards
 │   │   └── not_found.py     # 404
 │   ├── callbacks/
 │   │   ├── __init__.py      # register_callbacks(app)
 │   │   ├── navigation.py    # pathname -> render page; mobile menu; document title
+│   │   ├── explorer.py      # city/date/limit -> bounded daily preview table
 │   │   ├── sidenav.py       # sidebar expand/collapse toggle (clientside)
 │   │   └── theme.py         # light/dark toggle with dcc.Store persistence (clientside)
 │   ├── data/
 │   │   ├── __init__.py      # public read-only data API
 │   │   ├── db.py            # lazy engine, fetch_df(), TTL cache, error wrapping
 │   │   ├── queries.py       # SQL + DataFrame shaping
+│   │   ├── schema.py        # static metadata for the cities and daily tables
 │   │   └── README.md        # data-layer reference
 │   └── assets/
 │       ├── theme.css        # MP-inspired overrides + dark theme
 │       └── logo.svg
 └── tests/
-    ├── test_navigation.py   # registry, filters, active-link, app bootstrap, index smoke test
-    └── test_data.py         # offline data-layer tests
+    ├── test_navigation.py   # registry, filters, active-link, app bootstrap, explorer, index smoke test
+    ├── test_data.py         # offline data-layer tests
+    └── test_settings.py     # validated settings tests
 ```
 
 Keep data access isolated from pages: add SQL to `data/queries.py`, shape DataFrames there,
@@ -265,6 +273,7 @@ Next, in rough order:
 - [x] Add TTL caching for expensive aggregates.
 - [x] Harden configuration with pydantic-settings and fail-fast validation.
 - [x] Replace placeholder data with live queries on the home overview.
+- [x] Build the Data Explorer: table/column documentation and bounded record previews.
 - [ ] Plan the climate feature set in detail with the user. Directions already identified:
       global maps and rankings, and database freshness/status. Per-city browse/detail,
       warming trends, distributions (bells) and city comparison may follow; specifics are
