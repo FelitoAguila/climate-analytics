@@ -1,9 +1,16 @@
 from datetime import date
 
 import pytest
-from pipelines import download
+from pipelines import download, update
 from pipelines.download import DownloadConfig, DownloadError, open_db
-from pipelines.update import City, compare, complete_days, fetch_days
+from pipelines.update import (
+    City,
+    batches,
+    compare,
+    complete_days,
+    fetch_batch,
+    fetch_days,
+)
 
 TODAY = date(2024, 2, 15)
 MADRID = City("madrid-es", 40.0, -3.7, 40.5, -3.75, date(2024, 1, 31))
@@ -15,6 +22,7 @@ WINDOW = [
 @pytest.fixture(autouse=True)
 def no_sleep(monkeypatch):
     monkeypatch.setattr(download.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(update.time, "sleep", lambda seconds: None)
 
 
 class FakeResponse:
@@ -86,7 +94,7 @@ def test_fetch_asks_for_the_window_and_returns_complete_days():
     )
     assert (params["start_date"], params["end_date"]) == ("2024-01-01", "2024-02-15")
     assert params["models"] == "era5"
-    assert (params["latitude"], params["longitude"]) == (40.0, -3.7)
+    assert (params["latitude"], params["longitude"]) == ("40.0", "-3.7")
     assert days[-1] == (date(2024, 2, 2), 5.0, 9.0, 1.0)
     assert len(days) == 33
 
@@ -124,3 +132,77 @@ def test_compare_separates_new_changed_and_equal_days():
     assert changes.new == [(d3, 7.0, 9.0, 1.0)]
     assert changes.changed == [(d2, 5.5, 9.0, 1.0)]
     assert changes.largest_change == pytest.approx(0.5)
+
+
+PARIS = City("paris-fr", 48.9, 2.3, 48.75, 2.25, date(2024, 1, 31))
+
+
+def paris(times):
+    return {**response(times), "latitude": 48.75, "longitude": 2.25}
+
+
+def fake_get(body, requests_made):
+    def get(url, params, timeout):
+        requests_made.append(params)
+        return FakeResponse(body)
+
+    return get
+
+
+def test_batches_group_cities_by_last_date_and_size(monkeypatch):
+    monkeypatch.setattr(update, "BATCH_SIZE", 2)
+    later = City("lima-pe", -12.0, -77.0, -12.0, -77.0, date(2024, 2, 1))
+    groups = batches([MADRID, later, PARIS, MADRID])
+    assert [[c.id for c in group] for group in groups] == [
+        ["madrid-es", "paris-fr"],
+        ["madrid-es"],
+        ["lima-pe"],
+    ]
+
+
+def test_one_request_for_several_cities():
+    requests_made = []
+    payloads = fetch_batch(
+        open_db(":memory:"),
+        [MADRID, PARIS],
+        TODAY,
+        DownloadConfig(),
+        lambda text: None,
+        fake_get([response(WINDOW), paris(WINDOW)], requests_made),
+    )
+    assert len(requests_made) == 1
+    assert requests_made[0]["latitude"] == "40.0,48.9"
+    assert requests_made[0]["longitude"] == "-3.7,2.3"
+    assert [p["latitude"] for p in payloads] == [40.5, 48.75]
+
+
+def test_a_wrong_number_of_results_is_rejected():
+    with pytest.raises(DownloadError, match="1 results for 2 cities"):
+        fetch_batch(
+            open_db(":memory:"),
+            [MADRID, PARIS],
+            TODAY,
+            DownloadConfig(),
+            lambda text: None,
+            fake_get([response(WINDOW)], []),
+        )
+
+
+def test_a_bad_city_in_a_request_does_not_stop_the_others(monkeypatch):
+    written = {}
+    monkeypatch.setattr(update, "stored_days", lambda connection, city: {})
+    monkeypatch.setattr(
+        update,
+        "write_days",
+        lambda connection, city_id, days: written.update({city_id: days}),
+    )
+    requests_made = []
+    # Madrid comes from another ERA5 cell: it fails, Paris is still written
+    body = [response(WINDOW, latitude=40.75), paris(WINDOW)]
+    failed = update.update(
+        None, [MADRID, PARIS], TODAY, lambda text: None, fake_get(body, requests_made)
+    )
+    assert len(requests_made) == 1
+    assert failed == ["madrid-es"]
+    assert list(written) == ["paris-fr"]
+    assert len(written["paris-fr"]) == len(WINDOW)
