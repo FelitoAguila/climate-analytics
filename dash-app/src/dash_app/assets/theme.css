@@ -753,6 +753,42 @@ html[data-theme="dark"] .Select-control:hover {
   margin-top: 0.75rem;
 }
 
+.mp-distribution-card {
+  margin-top: 1.5rem;
+}
+
+.mp-distribution-city {
+  margin: 0.25rem 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--mp-text);
+}
+
+.mp-distribution-controls {
+  margin-top: 0.5rem;
+}
+
+.mp-temperature-options label {
+  margin-right: 1.25rem;
+  color: var(--mp-text);
+}
+
+.mp-year-slider {
+  margin: 0.75rem 0.25rem 0;
+}
+
+.mp-year-slider .rc-slider-mark-text {
+  color: var(--mp-muted);
+}
+
+.mp-year-slider .rc-slider-rail {
+  background-color: var(--mp-border);
+}
+
+.mp-distribution-chart {
+  margin-top: 0.75rem;
+}
+
 /* ------------------------------------------------------------ data explorer */
 
 .mp-page-loading {

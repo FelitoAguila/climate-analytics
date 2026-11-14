@@ -18,7 +18,8 @@ breadcrumbs, footer and a light/dark theme.
 - Data Explorer at `/explorer`: table documentation, column reference and bounded record
   previews for `cities` and `daily`.
 - City Map at `/map`: every city on an interactive Plotly world map, colour-coded by
-  continent, with uniform markers and light/dark map styling.
+  continent, with uniform markers and light/dark map styling. A city filter opens
+  annual temperature-distribution ridge plots for `t_mean`, `t_min` or `t_max`.
 - Pages: dashboard, features, data explorer, city map, about and a 404.
 - Navbar navigation (Features link + About dropdown), mobile menu, and a `/features`
   dashboard with a collapsible icon sidebar, page header and feature card grid.
@@ -134,7 +135,7 @@ src/dash_app/
 ├── errors.py         # DataLayerError, ConfigurationError, DataUnavailable
 ├── config.py         # branding, theme tokens, navigation
 ├── utils.py          # is_active() helper
-├── components/       # shell, navbar, sidenav, page header, footer, search, cards, tables, maps, Bulma helpers
+├── components/       # shell, navbar, sidenav, page header, footer, search, cards, tables, maps, distributions, Bulma helpers
 ├── pages/            # page layouts (incl. explorer and city map) + registry
 ├── callbacks/        # navigation, sidenav, theme, explorer, city map
 ├── data/             # read-only Neon access (see data/README.md)
@@ -147,6 +148,7 @@ src/dash_app/
 tests/
 ├── test_navigation.py
 ├── test_map.py
+├── test_distributions.py
 ├── test_data.py
 └── test_settings.py
 ```
