@@ -8,6 +8,7 @@ from typing import Any
 import pandas as pd
 from dash import dcc, html
 
+from .. import config
 from ..components import bulma as b
 from ..components.cards import content_card, stat_card, stat_grid
 from ..components.page_header import page_header
@@ -256,7 +257,8 @@ def _daily_tab(cities: pd.DataFrame | None, status: DatasetStatus | None) -> htm
                 ),
                 dcc.Loading(
                     html.Div(id="explorer-daily-table", children=html.P("Loading…")),
-                    type="default",
+                    type="circle",
+                    color=config.PRIMARY_COLOR_HEX,
                 ),
             ],
         )

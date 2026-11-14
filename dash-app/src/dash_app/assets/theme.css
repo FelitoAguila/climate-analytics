@@ -339,7 +339,15 @@ body {
 }
 
 .table th {
-  color: var(--mp-muted);
+  color: var(--mp-text);
+  background-color: transparent;
+  border-color: var(--mp-border);
+}
+
+.table thead th,
+.table thead td {
+  color: var(--mp-text);
+  background-color: transparent;
   border-color: var(--mp-border);
 }
 
@@ -352,8 +360,8 @@ body {
   background: rgba(127, 140, 160, 0.06);
 }
 
-.table.is-hoverable tbody tr:hover {
-  background: rgba(0, 209, 178, 0.08);
+.table.is-hoverable tbody tr:not(.is-selected):hover {
+  background-color: rgba(0, 209, 178, 0.12);
 }
 
 .mp-table-link {
@@ -728,6 +736,10 @@ html[data-theme="dark"] .Select-control:hover {
 }
 
 /* ------------------------------------------------------------ data explorer */
+
+.mp-page-loading {
+  min-height: 30vh;
+}
 
 .mp-explorer-intro {
   margin-top: 1.25rem;

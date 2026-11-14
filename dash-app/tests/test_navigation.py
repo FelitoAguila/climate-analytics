@@ -146,6 +146,21 @@ def test_features_dashboard_layout():
     assert "/explorer" in str(features.layout().to_plotly_json())
 
 
+def test_shell_has_page_loading(app):
+    classes: list[str] = []
+    ids: set[str] = set()
+    _walk(app.layout, classes, ids)
+
+    assert "page-loading" in ids
+
+
+def test_navbar_does_not_link_to_explorer():
+    hrefs = {item.href for item in config.NAV_LINKS}
+
+    assert "/features" in hrefs
+    assert "/explorer" not in hrefs
+
+
 def _explorer_cities() -> pd.DataFrame:
     return pd.DataFrame(
         [

@@ -25,7 +25,13 @@ def shell() -> html.Div:
             html.Main(
                 id="mp-content",
                 className="mp-content",
-                children=html.Div(id="page-content"),
+                children=dcc.Loading(
+                    id="page-loading",
+                    type="circle",
+                    color=config.PRIMARY_COLOR_HEX,
+                    parent_className="mp-page-loading",
+                    children=html.Div(id="page-content"),
+                ),
             ),
             footer(),
         ],
