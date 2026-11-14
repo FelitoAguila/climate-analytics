@@ -540,6 +540,7 @@ html[data-theme="dark"] .Select-control:hover {
   cursor: pointer;
   overflow: hidden;
   text-align: left;
+  text-decoration: none;
   white-space: nowrap;
   font-size: 0.9rem;
 }
@@ -648,30 +649,6 @@ html[data-theme="dark"] .Select-control:hover {
   font-weight: 600;
   line-height: 1.1;
   color: var(--mp-text);
-}
-
-.mp-doc-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.9rem;
-  background: var(--mp-surface);
-  border: 1px solid var(--mp-border);
-  border-radius: 6px;
-  color: var(--mp-text);
-  font-size: 0.9rem;
-  font-weight: 500;
-  white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease;
-}
-
-.mp-doc-button:hover {
-  border-color: #00bdad;
-  color: #1f8f83;
-}
-
-.mp-doc-button .icon {
-  color: #00bdad;
 }
 
 .mp-dashboard-body {

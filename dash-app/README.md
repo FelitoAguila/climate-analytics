@@ -22,7 +22,8 @@ breadcrumbs, footer and a light/dark theme.
   annual temperature-distribution ridge plots for `t_mean`, `t_min` or `t_max`.
 - Pages: dashboard, features, data explorer, city map, about and a 404.
 - Navbar navigation (Features link + About dropdown), mobile menu, and a `/features`
-  dashboard with a collapsible icon sidebar, page header and feature card grid.
+  dashboard with a collapsible icon sidebar that links to the Data Explorer and Analytics
+  Dashboard, plus a responsive feature card grid.
 - Light/dark theme with `localStorage` persistence.
 
 ## Requirements

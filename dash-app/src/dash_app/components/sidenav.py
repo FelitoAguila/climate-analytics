@@ -1,43 +1,47 @@
 """Collapsible dashboard sidebar.
 
 A narrow, sticky icon sidebar that expands on hover or focus to reveal labels.
-It is presentational: items are non-navigating buttons, so no routes are added.
+Items are real ``dcc.Link`` navigation targets, with the active item derived from
+the current page path.
 """
 
 from __future__ import annotations
 
-from dash import html
+from dash import dcc, html
 
 from .. import config
+from ..utils import is_active
 
 
-def _item(item: config.SidebarItem) -> html.Button:
-    classes = "mp-sidenav-item is-selected" if item.active else "mp-sidenav-item"
-    aria: dict[str, str] = {"aria-label": item.label}
-    if item.active:
-        aria["aria-current"] = "true"
-    return html.Button(
+def _item(item: config.SidebarItem, active_href: str | None) -> dcc.Link:
+    selected = bool(active_href) and is_active(item.href, active_href)
+    classes = "mp-sidenav-item is-selected" if selected else "mp-sidenav-item"
+    return dcc.Link(
         [
             html.Span(html.I(className=item.icon), className="icon mp-sidenav-icon"),
             html.Span(item.label, className="mp-sidenav-label"),
         ],
+        href=item.href,
         className=classes,
-        type="button",
         title=item.label,
-        **aria,
     )
 
 
-def _group(items: list[config.SidebarItem]) -> html.Div:
-    return html.Div([_item(item) for item in items], className="mp-sidenav-group")
+def _group(items: list[config.SidebarItem], active_href: str | None) -> html.Div:
+    return html.Div(
+        [_item(item, active_href) for item in items],
+        className="mp-sidenav-group",
+    )
 
 
-def sidenav(groups: list[list[config.SidebarItem]]) -> html.Div:
+def sidenav(
+    groups: list[list[config.SidebarItem]], active_href: str | None = None
+) -> html.Div:
     nav_children: list[object] = []
     for index, group in enumerate(groups):
         if index:
             nav_children.append(html.Hr(className="mp-sidenav-sep"))
-        nav_children.append(_group(group))
+        nav_children.append(_group(group, active_href))
 
     toggle = html.Button(
         html.Span(html.I(className="fa-solid fa-angles-right"), className="icon"),
