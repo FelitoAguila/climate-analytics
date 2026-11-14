@@ -117,20 +117,19 @@ AUTHORS: tuple[Author, ...] = (
 class SidebarItem:
     label: str
     icon: str
-    active: bool = False
+    href: str
 
 
 DASHBOARD_NAV: list[list[SidebarItem]] = [
-    [SidebarItem("Overview", "fa-solid fa-gauge-high", active=True)],
+    [SidebarItem("Overview", "fa-solid fa-gauge-high", "/features")],
     [
-        SidebarItem("Search", "fa-solid fa-magnifying-glass"),
-        SidebarItem("Data Explorer", "fa-solid fa-database"),
+        SidebarItem("Data Explorer", "fa-solid fa-database", "/explorer"),
+        SidebarItem(
+            "Analytics Dashboard",
+            "fa-solid fa-chart-line",
+            "/map",
+        ),
     ],
-    [
-        SidebarItem("Visualizations", "fa-solid fa-chart-line"),
-        SidebarItem("Processing", "fa-solid fa-microchip"),
-    ],
-    [SidebarItem("Settings", "fa-solid fa-sliders")],
 ]
 
 FOOTER_TITLE = APP_COPYRIGHT

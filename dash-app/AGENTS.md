@@ -120,6 +120,7 @@ Public query API:
   overview reads live database status (cached by the data layer); the data explorer
   documents both tables and previews bounded records; the city map plots every city with
   Plotly `Scattergeo` and offers a city filter for annual temperature-distribution ridges.
+- The Features sidebar links to Overview, Data Explorer and Analytics Dashboard.
 - Branding, navigation and copy are still partly template placeholders.
 
 ## Architecture
@@ -141,7 +142,7 @@ dash-app/
 │   │   ├── bulma.py         # Bulma primitives: container, columns/column, card*, hero, notification, level...
 │   │   ├── shell.py         # full-page shell: navbar + content + footer + dcc.Location/stores
 │   │   ├── navbar.py        # dark navy bar: brand/logo, links, About dropdown, theme toggle, burger
-│   │   ├── sidenav.py       # collapsible icon sidebar (hover/focus expand + tap toggle)
+│   │   ├── sidenav.py       # collapsible icon sidebar with dcc.Link item navigation
 │   │   ├── page_header.py   # breadcrumb + icon/title/action row
 │   │   ├── footer.py
 │   │   ├── search.py        # hero_banner() (hero section without search bar)
@@ -223,6 +224,7 @@ Routing mirrors MP: manual `dcc.Location` + callbacks, not Dash Pages. Dynamic
 3. Document title sync + `#features` smooth-scroll anchor (clientside).
 4. Light/dark theme toggle with `dcc.Store`/localStorage persistence (clientside).
 5. Features sidebar expand/collapse toggle (clientside; hover/focus handled in CSS).
+6. Features sidebar links to the existing feature pages, with path-based active state.
 
 ## Decisions
 
@@ -283,6 +285,7 @@ Next, in rough order:
 - [x] Build the Data Explorer: table/column documentation and bounded record previews.
 - [x] Build the City Map: all cities on a theme-aware, interactive Plotly map.
 - [x] Add annual temperature-distribution ridge plots for a selected city.
+- [x] Make the Features sidebar navigate to the existing feature pages.
 - [ ] Plan the climate feature set in detail with the user. Directions already identified:
       global maps and rankings, and database freshness/status. Per-city browse/detail,
       warming trends, distributions (bells) and city comparison may follow; specifics are

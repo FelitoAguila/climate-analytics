@@ -13,8 +13,6 @@ from ..components.cards import dashboard_card
 from ..components.page_header import page_header
 from ..components.sidenav import sidenav
 
-_DOCS_URL = "https://dash.plotly.com/"
-
 _CARDS = [
     (
         "Data Explorer",
@@ -31,19 +29,6 @@ _CARDS = [
 ]
 
 
-def _documentation_button() -> html.A:
-    return html.A(
-        [
-            html.Span(html.I(className="fa-solid fa-book"), className="icon"),
-            html.Span("Documentation"),
-        ],
-        href=_DOCS_URL,
-        target="_blank",
-        rel="noopener",
-        className="mp-doc-button",
-    )
-
-
 def _card_grid() -> html.Div:
     return html.Div(
         [
@@ -58,14 +43,13 @@ def layout() -> html.Div:
     return html.Div(
         className="mp-dashboard",
         children=[
-            sidenav(config.DASHBOARD_NAV),
+            sidenav(config.DASHBOARD_NAV, active_href="/features"),
             html.Div(
                 className="mp-dashboard-main",
                 children=[
                     page_header(
                         "Features",
                         [("Home", "/"), ("Features", "/features")],
-                        action=_documentation_button(),
                     ),
                     html.Div(
                         className="mp-dashboard-body",

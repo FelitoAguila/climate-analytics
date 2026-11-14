@@ -11,6 +11,7 @@ import pytest
 from dash_app import config
 from dash_app.app import create_app
 from dash_app.callbacks import explorer as explorer_callbacks
+from dash_app.components.sidenav import sidenav
 from dash_app.data import DataUnavailable
 from dash_app.pages import about, explorer, features, home, registry
 from dash_app.utils import is_active
@@ -135,6 +136,49 @@ def _walk(node, classes, ids):
     _walk(props.get("children"), classes, ids)
 
 
+def _sidebar_links(node, links):
+    if isinstance(node, (list, tuple)):
+        for item in node:
+            _sidebar_links(item, links)
+        return
+    if isinstance(node, dict):
+        props = node.get("props", {})
+    elif hasattr(node, "to_plotly_json"):
+        props = node.to_plotly_json().get("props", {})
+    else:
+        return
+    class_name = props.get("className") or ""
+    if "mp-sidenav-item" in class_name.split() and props.get("href"):
+        links[props["href"]] = set(class_name.split())
+    _sidebar_links(props.get("children"), links)
+
+
+def test_sidenav_has_real_navigation_links():
+    links = {}
+    _sidebar_links(sidenav(config.DASHBOARD_NAV, active_href="/features"), links)
+
+    assert set(links) == {"/features", "/explorer", "/map"}
+    assert "is-selected" in links["/features"]
+    assert "is-selected" not in links["/explorer"]
+    assert "is-selected" not in links["/map"]
+
+    payload = str(
+        sidenav(config.DASHBOARD_NAV, active_href="/features").to_plotly_json()
+    )
+    assert "Analytics Dashboard" in payload
+    for removed in ("Search", "Processing", "Settings"):
+        assert removed not in payload
+
+
+def test_sidenav_active_item_follows_path():
+    links = {}
+    _sidebar_links(sidenav(config.DASHBOARD_NAV, active_href="/explorer"), links)
+
+    assert "is-selected" in links["/explorer"]
+    assert "is-selected" not in links["/features"]
+    assert "is-selected" not in links["/map"]
+
+
 def test_features_dashboard_layout():
     classes: list[str] = []
     ids: set[str] = set()
@@ -151,6 +195,8 @@ def test_features_dashboard_layout():
     assert "/explorer" in payload
     assert "/map" in payload
     assert "Analytics Dashboard" in payload
+    assert "Documentation" not in payload
+    assert "dash.plotly.com" not in payload
 
 
 def test_shell_has_page_loading(app):
