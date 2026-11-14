@@ -255,6 +255,8 @@ def test_explorer_callback_registered(app):
 
 def test_map_callback_registered(app):
     assert any("city-map.figure" in key for key in app.callback_map)
+    assert any("distribution-chart.figure" in key for key in app.callback_map)
+    assert any("year-range.min" in key for key in app.callback_map)
 
 
 def test_explorer_preview_builder(monkeypatch):

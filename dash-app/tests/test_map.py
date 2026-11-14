@@ -88,6 +88,16 @@ def test_build_city_map_traces_and_hover():
 
     sizes = [trace.marker.size for trace in figure.data]
     assert sizes == [maps._MARKER_SIZE] * len(figure.data)
+    assert {trace.text[0] for trace in figure.data} == {
+        "Phoenix",
+        "Paris",
+        "Sydney",
+    }
+    assert {trace.customdata[0] for trace in figure.data} == {
+        "phoenix-us",
+        "paris-fr",
+        "sydney-au",
+    }
     assert figure.layout.geo.projection.type == "natural earth"
     assert figure.layout.geo.landcolor == maps.map_colors("light")["land"]
 
@@ -115,12 +125,22 @@ def test_city_map_layout(monkeypatch):
     payload = str(layout.to_plotly_json())
 
     assert maps.MAP_ID in ids
+    assert {
+        "city-filter",
+        "distribution-chart",
+        "distribution-city",
+        "temperature-variable",
+        "year-range",
+    } <= ids
     assert "World map" in payload
+    assert "Annual temperature distributions" in payload
     assert "Every city on one map" in payload
     assert "Continents" in payload
     assert "Countries" in payload
     assert "Phoenix" in payload
+    assert "Phoenix (US)" in payload
     assert "Scroll to zoom" in payload
+    assert "Use the city filter below" in payload
 
 
 def test_city_map_layout_handles_unavailable_data(monkeypatch):
