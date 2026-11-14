@@ -6,12 +6,15 @@ from ..errors import ConfigurationError, DataLayerError, DataUnavailable
 from .db import clear_data_caches, fetch_df, reset_engine, ttl_cache
 from .queries import (
     LESS_RELIABLE_BEFORE,
+    MAX_PREVIEW_ROWS,
+    PREVIEW_ROWS,
     RECENT_TREND_FROM,
     RECENT_YEARS,
     REFERENCE_PERIOD,
     DatasetStatus,
     city_annual_stats,
     city_daily,
+    city_daily_preview,
     city_summaries,
     data_status,
     get_city,
@@ -20,6 +23,8 @@ from .queries import (
 
 __all__ = [
     "LESS_RELIABLE_BEFORE",
+    "MAX_PREVIEW_ROWS",
+    "PREVIEW_ROWS",
     "RECENT_TREND_FROM",
     "RECENT_YEARS",
     "REFERENCE_PERIOD",
@@ -29,6 +34,7 @@ __all__ = [
     "DatasetStatus",
     "city_annual_stats",
     "city_daily",
+    "city_daily_preview",
     "city_summaries",
     "clear_data_caches",
     "data_status",

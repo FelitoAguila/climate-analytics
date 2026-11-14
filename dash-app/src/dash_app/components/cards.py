@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from dash import html
+from dash import dcc, html
 
 from . import bulma as b
 
@@ -74,14 +74,18 @@ def feature_card(
 
 
 def dashboard_card(
-    title: str, description: str, *, icon: str | None = None
-) -> html.Div:
+    title: str,
+    description: str,
+    *,
+    icon: str | None = None,
+    href: str | None = None,
+) -> Any:
     icon_el = (
         html.Span(html.I(className=icon), className="icon mp-dash-icon")
         if icon
         else None
     )
-    return html.Div(
+    card = html.Div(
         [
             icon_el,
             html.P(title, className="mp-dash-title"),
@@ -89,6 +93,9 @@ def dashboard_card(
         ],
         className="mp-dash-card",
     )
+    if href is not None:
+        return dcc.Link(card, href=href, className="mp-dash-card-link")
+    return card
 
 
 def content_card(title: str, children: Any, *, footer: Any = None) -> html.Div:

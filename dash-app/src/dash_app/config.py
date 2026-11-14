@@ -50,6 +50,7 @@ class Author:
 
 NAV_LINKS: list[NavItem] = [
     NavItem("Features", "/features"),
+    NavItem("Data Explorer", "/explorer", "fa-solid fa-database"),
 ]
 
 ABOUT_MENU: list[NavItem] = [
