@@ -40,7 +40,8 @@ jobs:
         run: uv run ruff format --check notebooks packages
 
       - name: Tests (pytest)
-        run: uv run pytest
+        # Only the packages: dash-app has its own environment and job below
+        run: uv run pytest packages
 
   dash-app:
     runs-on: ubuntu-latest

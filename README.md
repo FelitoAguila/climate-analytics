@@ -173,7 +173,7 @@ Notebooks 04 and 05 take about a minute each and do not call any API.
 ## Tests and lint
 
 ```bash
-uv run pytest                          # no network needed
+uv run pytest packages                 # no network needed (dash-app has its own tests)
 uv run ruff check notebooks packages
 uv run ruff format notebooks packages
 ```

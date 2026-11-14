@@ -4,6 +4,9 @@
 
 1. Reads its last date and coordinates from the database, so it needs no local data.
 2. Asks the API from `WINDOW_DAYS` before that date until today.
+   Cities with the same last date share one request (up to `BATCH_SIZE` of them): from GitHub's
+   machines the API holds about one request in six for minutes, so 140 separate requests could
+   take longer than the run allows. The API counts the calls per city, so this costs the same.
 3. Keeps the days up to the first one with an empty value. ERA5 arrives about a week late, and
    the newest day can come half empty (a mean without maximum or minimum).
 4. Validates them like a download and checks that the API still uses the same ERA5 cell.
@@ -37,9 +40,9 @@ from pipelines.neon import connect, database_url
 from pipelines.open_meteo import DAILY_VARIABLES, build_params, request_cost
 
 WINDOW_DAYS = 30
-PAUSE_SECONDS = (
-    1  # between cities: even the first update stays under 600 calls a minute
-)
+BATCH_SIZE = 50  # cities per request: a short URL, and ~50 calls, far from 600 a minute
+PAUSE_SECONDS = 1  # between requests
+TIMEOUT_SECONDS = 60  # per request; an answer normally takes a few seconds
 SAME_VALUE_TOLERANCE = 0.01  # °C; the database keeps 4-byte numbers with one decimal
 SAME_CELL_TOLERANCE = 0.001  # degrees
 
@@ -96,26 +99,57 @@ def complete_days(daily: dict) -> dict:
     }
 
 
-def fetch_days(
+def batches(cities: list[City]) -> list[list[City]]:
+    """Groups of up to `BATCH_SIZE` cities with the same last date, in their order."""
+    by_date: dict[date, list[City]] = {}
+    for city in cities:
+        by_date.setdefault(city.last_date, []).append(city)
+    return [
+        group[i : i + BATCH_SIZE]
+        for group in by_date.values()
+        for i in range(0, len(group), BATCH_SIZE)
+    ]
+
+
+def window_start(city: City) -> str:
+    return str(city.last_date - timedelta(days=WINDOW_DAYS))
+
+
+def fetch_batch(
     usage,
-    city: City,
+    cities: list[City],
     today: date,
     config: DownloadConfig,
     log: Callable,
     get: Callable = requests.get,
-) -> list[tuple]:
-    """Complete days of the window as (date, t_mean, t_max, t_min). `usage` records the calls."""
-    start = str(city.last_date - timedelta(days=WINDOW_DAYS))
-    end = str(today)
+) -> list[dict]:
+    """One request for cities with the same last date: one response per city, in their order.
+
+    `usage` records the calls."""
+    start, end = window_start(cities[0]), str(today)
+    params = build_params(cities[0].latitude, cities[0].longitude, start, end)
+    params["latitude"] = ",".join(str(city.latitude) for city in cities)
+    params["longitude"] = ",".join(str(city.longitude) for city in cities)
     payload = fetch_with_retries(
         usage,
-        city.id,
-        build_params(city.latitude, city.longitude, start, end),
-        request_cost(days_between(start, end)),
+        cities[0].id if len(cities) == 1 else f"{len(cities)} cities",
+        params,
+        len(cities) * request_cost(days_between(start, end)),
         config,
         log,
         get,
     )
+    # With one location the API answers an object; with several, a list
+    payloads = payload if isinstance(payload, list) else [payload]
+    if len(payloads) != len(cities):
+        raise DownloadError(
+            f"{len(payloads)} results for {len(cities)} cities in one request"
+        )
+    return payloads
+
+
+def city_days(city: City, payload: dict) -> list[tuple]:
+    """Complete days of the window in one city's response, as (date, t_mean, t_max, t_min)."""
     moved = max(
         abs(payload["latitude"] - city.era5_lat),
         abs(payload["longitude"] - city.era5_lon),
@@ -126,6 +160,7 @@ def fetch_days(
             f"instead of {city.era5_lat}, {city.era5_lon}"
         )
 
+    start = window_start(city)
     daily = complete_days(payload.get("daily", {}))
     if not daily["time"]:
         raise DownloadError(f"no complete days from {start}")
@@ -140,6 +175,18 @@ def fetch_days(
             strict=True,
         )
     ]
+
+
+def fetch_days(
+    usage,
+    city: City,
+    today: date,
+    config: DownloadConfig,
+    log: Callable,
+    get: Callable = requests.get,
+) -> list[tuple]:
+    """Complete days of the window for one city, with a request of its own."""
+    return city_days(city, fetch_batch(usage, [city], today, config, log, get)[0])
 
 
 def compare(days: list[tuple], stored: dict[date, tuple]) -> Changes:
@@ -175,35 +222,52 @@ def write_days(connection, city_id: str, days: list[tuple]) -> None:
         cursor.executemany(UPSERT, [(city_id, *day) for day in days])
 
 
-def update(connection, cities: list[City], today: date, log=print) -> list[str]:
+def update(
+    connection,
+    cities: list[City],
+    today: date,
+    log=print,
+    get: Callable = requests.get,
+) -> list[str]:
     """Updates each city and logs what changed. Returns the cities that failed."""
     # fetch_with_retries records every call in a database: here it only lasts for this run
     usage = open_db(":memory:")
-    config = DownloadConfig()
+    config = DownloadConfig(timeout_seconds=TIMEOUT_SECONDS)
     failed, n_new, n_changed, largest_change = [], 0, 0, 0.0
-    for position, city in enumerate(cities, start=1):
+    position = 0
+    groups = batches(cities)
+    for number, batch in enumerate(groups):
+        if number:
+            time.sleep(PAUSE_SECONDS)
         try:
-            days = fetch_days(usage, city, today, config, log)
+            payloads = fetch_batch(usage, batch, today, config, log, get)
         except DailyLimitReached as error:
             log(f"API daily limit reached ({error}). Stopping.")
-            failed.extend(c.id for c in cities[position - 1 :])
+            failed.extend(c.id for group in groups[number:] for c in group)
             break
         except DownloadError as error:
-            log(f"[{position}/{len(cities)}] {city.id}: FAILED, {error}")
-            failed.append(city.id)
+            log(f"Request for {len(batch)} cities FAILED: {error}")
+            failed.extend(c.id for c in batch)
+            position += len(batch)
             continue
 
-        changes = compare(days, stored_days(connection, city))
-        write_days(connection, city.id, changes.new + changes.changed)
-        n_new += len(changes.new)
-        n_changed += len(changes.changed)
-        largest_change = max(largest_change, changes.largest_change)
-        log(
-            f"[{position}/{len(cities)}] {city.id}: {len(changes.new)} new, "
-            f"{len(changes.changed)} changed, complete until {days[-1][0]}"
-        )
-        if position < len(cities):
-            time.sleep(PAUSE_SECONDS)
+        for city, payload in zip(batch, payloads, strict=True):
+            position += 1
+            try:
+                days = city_days(city, payload)
+            except DownloadError as error:
+                log(f"[{position}/{len(cities)}] {city.id}: FAILED, {error}")
+                failed.append(city.id)
+                continue
+            changes = compare(days, stored_days(connection, city))
+            write_days(connection, city.id, changes.new + changes.changed)
+            n_new += len(changes.new)
+            n_changed += len(changes.changed)
+            largest_change = max(largest_change, changes.largest_change)
+            log(
+                f"[{position}/{len(cities)}] {city.id}: {len(changes.new)} new, "
+                f"{len(changes.changed)} changed, complete until {days[-1][0]}"
+            )
 
     log(
         f"Done: {n_new:,} new days, {n_changed:,} changed "
