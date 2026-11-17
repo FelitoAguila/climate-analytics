@@ -93,6 +93,16 @@ def connect(url: str) -> psycopg.Connection:
         ) from None
 
 
+def read_cities(path: Path) -> pd.DataFrame:
+    """The list of cities. It is not in git, like the Parquet file."""
+    if not Path(path).exists():
+        raise SystemExit(
+            f"{path} does not exist. Ask a team member for it (see the README) or write it "
+            "with notebooks/02_city_list.ipynb."
+        )
+    return read_cities_csv(path)
+
+
 def read_shared_data(path: Path) -> dict[str, pd.DataFrame]:
     """The rows of each city of a file written by `export_parquet`, by city id."""
     if not Path(path).exists():
@@ -198,7 +208,7 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     url = database_url()
-    cities = read_cities_csv(CITIES_CSV).head(args.limit)
+    cities = read_cities(CITIES_CSV).head(args.limit)
     shared = read_shared_data(SHARED_PARQUET)
     with connect(url) as connection:
         load(connection, cities, shared)
