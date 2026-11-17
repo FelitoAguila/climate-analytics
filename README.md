@@ -20,8 +20,7 @@ The details, charts and precautions are in the conclusions of each notebook.
 
 ```
 climate-analytics/
-├── data/
-│   └── cities.csv            # the 140 cities (the only data file in git)
+├── data/                     # local data, not in git (see "Getting the data")
 ├── notebooks/                # one notebook per step, run in order
 │   ├── 01_explore_api.ipynb
 │   ├── 02_city_list.ipynb
@@ -73,10 +72,13 @@ The daily data (4.4 million rows, ~250 MB as SQLite) are **not in git**: noteboo
 Whoever has the complete database can write `data/climate.parquet` for the others (section 7 of
 notebook 03).
 
+The list of cities, **`data/cities.csv`** (~15 KB), is not in git either: ask a team member for it
+together with `climate.parquet`, or create it with notebook 02.
+
 ### Loading the data into Neon
 
 The web app will read the data from [Neon](https://neon.com/) (PostgreSQL in the cloud). With
-`data/climate.parquet` in place:
+`data/cities.csv` and `data/climate.parquet` in place:
 
 ```bash
 cp .env.example .env       # then paste your connection string (direct, without -pooler)

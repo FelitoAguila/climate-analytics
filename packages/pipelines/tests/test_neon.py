@@ -12,6 +12,7 @@ from pipelines.neon import (
     connect,
     daily_rows,
     database_url,
+    read_cities,
     read_shared_data,
 )
 
@@ -73,6 +74,11 @@ def test_a_failed_connection_does_not_show_the_url():
     assert secret not in str(failure.value)
     assert failure.value.__cause__ is None
     assert failure.value.__suppress_context__
+
+
+def test_missing_cities_csv_says_what_to_do(in_empty_folder):
+    with pytest.raises(SystemExit, match="02_city_list"):
+        read_cities(in_empty_folder / "cities.csv")
 
 
 def test_missing_parquet_says_what_to_do(in_empty_folder):
