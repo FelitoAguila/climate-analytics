@@ -164,6 +164,25 @@ extra `{"sslmode": "require"}`.
 
 **Tests:** `.venv-airflow/bin/python -m pytest airflow/tests` (`uv run pytest` skips them).
 
+## Docker
+
+The `Dockerfile` packages the `pipelines` package, so `update-neon` (or `load-neon`) runs anywhere
+with Docker, without installing Python, uv or the dependencies:
+
+```bash
+docker build -t climate-pipelines .
+export DATABASE_URL="postgresql://..."                      # the write connection string
+docker run --rm -e DATABASE_URL climate-pipelines           # runs update-neon
+docker run --rm -e DATABASE_URL climate-pipelines update-neon --limit 2
+```
+
+- **No password in the image.** `-e DATABASE_URL` hands the variable to the container only when it
+  starts. `.dockerignore` lets in only the files the image needs, so `.env`, the virtual
+  environments, the data and Airflow are left out.
+- **Fast rebuilds.** The dependencies are installed before the code is copied, so a change in the
+  code reuses that layer and rebuilds in seconds. A change in `uv.lock` installs them again.
+- It runs as a normal user, not as root.
+
 ## Notebooks
 
 | Notebook | What it does | Needs |

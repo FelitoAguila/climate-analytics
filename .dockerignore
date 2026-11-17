@@ -1,0 +1,11 @@
+# What Docker may copy into the image. Everything is excluded except the files listed with "!",
+# so .env (the passwords), the virtual environments, the data and Airflow can never get in,
+# even if new files appear in the repository.
+*
+!pyproject.toml
+!uv.lock
+!packages/pipelines/pyproject.toml
+!packages/pipelines/README.md
+!packages/pipelines/src/
+!packages/analysis/pyproject.toml
+**/__pycache__
